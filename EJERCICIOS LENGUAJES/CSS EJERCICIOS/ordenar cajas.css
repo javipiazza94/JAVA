@@ -1,0 +1,42 @@
+* {box-sizing: border-box;}
+p {
+    border: solid 4px blue;
+    width: 100px;
+    height: 100px;
+    padding: 23px;
+    font-weight: bold;
+    float: left;
+}
+#p1{
+    background-color: cyan;
+}
+#p2{
+    background-color: yellow;
+    position: relative;
+    top: 10px;
+    left: 30px; 
+}
+#p3{
+    background-color: red;
+    position: absolute;
+    top: 10px;
+    left: 85px;
+    z-index: -3;
+}
+#p4{
+    background-color: orange;
+    position: relative;
+    top: -45px;
+}
+#p5{
+    background-color: royalblue;
+}
+#p6{
+    background-color: chartreuse;  
+}
+#p7{
+    background-color: darkred;
+}
+#p8{
+   background-color: darkviolet; clear: both;
+}

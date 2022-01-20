@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href= "posicionCSS.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Propiedad posicion</h1>
+    <h2>position: static;</h2>
+    <p>
+        El Elemento Parent1 tiene position: static, y permanece en el flujo natural de la pagina, no actuara como punto de anclaje para el elemento child1
+    </p>
+    <div id="parent1"> Parent1: position: static.
+        <div id="child1"> child1: position: absolute, right: 15px, top: 70px</div>
+    </div>
+    <h2>position: relative;</h2>
+    <p>
+        El Elemento Parent2 tiene position: relative, y permanecera en el flujo natural de la pagina, no actuara como punto de anclaje para el elemento child2
+    </p>
+    <div id="parent2"> Parent2: position: static.
+        <div id="child2"> child2: position: absolute, right: 15px, top: 70px</div>
+    </div>
+    <p>
+        El Elemento Parent3 tiene position: absolute, y permanecera en el flujo natural de la pagina, se psosicionara segun su padre (Julio Iglesias) no actuara como punto de anclaje para el elemento child3
+    </p>
+    <div id="parent3"> Parent3: position: static.
+        <div id="child3"> child3: position: absolute, right: 15px, top: 70px</div>
+    </div>
+    <h2>position: fixed;</h2>
+    <p>
+        El Elemento Parent4 tiene position: fixed, y permanecera en el flujo natural de la pagina.    
+    <div id="parent4"> Parent4: position: static.
+        <div id="child4"> child4: position: absolute, right: 15px, top: 70px</div>
+    </div>
+
+
+
+</body>
+</html>

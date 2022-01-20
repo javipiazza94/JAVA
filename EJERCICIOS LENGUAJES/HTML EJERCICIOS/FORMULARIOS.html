@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORMULARIOS CON CSS</title>
+    <link rel = "stylesheet" type="text/css" href="CSS ESTILO.css">
+</head>
+<body>
+    <form method="get"> <!--formulario, post es envio de info privada, si fuera get es publica-->
+        Nombre: <input type="text" name = "nombre"> <!--Para introducir elementos en el formulario-->
+        <p>
+            <input type="radio" name = "sexo" value="h"> Hombre <!--Radio = boton para clicar-->
+            <input type="radio" name = "sexo" value="m"> Mujer
+        </p>
+            <input type="submit" value="ENVIAR"> <!--submit = boton para enviar-->
+            <input type="reset" Value ="BORRAR"> <!--reset = boton para borrar-->
+            <input type="button" value="Hola gilipollas">
+    </form>   
+
+    <hr>
+    <form method="get"> 
+        <fieldset>
+            <legend><h2>RELLENA ESTO</h2></legend>
+        <p id="nombre">
+            Nombre: <input id="pepito" type="text" name = "nombre"  size="25" placeholder="Que pasa guapeton"> <!--Para introducir elementos en el formulario-->
+        </p>
+        <p>
+            Contraseña <input type="password" name="contraseña" size="22"> <!--Metemos la contraseña con su tamaño-->
+        </p>
+            Comentario
+        </p>
+        <textarea name="comentario" id="4" cols="27" rows="10"></textarea> <!--Hacemos un area de texto-->
+    </fieldset>
+        <hr>
+    <form method="get"> <!--Hacemos opciones para elegir-->
+                <input id = "pepe" type="checkbox" name = "Opcion 1"  checkbox> Opcion 1 <br><!--Para introducir opciones a elegir en el formulario-->
+                <input type="checkbox" name = "Opcion 2"  checked> Opcion 2 <br>
+                <input type="checkbox" name = "Opcion 3"  checkbox> Opcion 3 <br>
+    </form>      
+        <hr>
+    <form method="get"> <!--Hacemos opciones para elegir-->
+        <p>
+            <B>OPCIONES A ELEGIR</B>
+        </p>
+            <select name="opciones">
+                <option value="1"> Opcion1  </option><!--Para introducir opciones a elegir en el formulario-->
+                <option value="2"> Opcion2  </option>
+                <option value="3"> Opcion3  </option>
+            </select>
+            <select name="opciones" size="3" multiple = "multiple">
+                <option value="1"> Opcion1  </option><!--Para introducir opciones a elegir en el formulario-->
+                <option value="2"> Opcion2  </option>
+                <option value="3"> Opcion3  </option>
+            </select>
+    </form>    
+<hr>
+
+    <form method="post">
+        <fieldset>
+            <legend><B>DATOS PERSONALES</B></legend>
+            <p><b id="mama">Fecha de nacimiento</b> <input type="date" name="fecha"></p>
+            <p><b>Nombre</b> <input type="text" name="nombre" size="45" placeholder="Indica nombre completo"></p>
+            <p><b>Edad</b> <input type="text" name="edad" size="3"></p>
+            <p><b>Correo</b> <input type="email" name="correo" size="7"></p>
+        </fieldset>
+
+        <fieldset>
+            <legend><B>DATOS DE INTERES</B></legend>
+            <p><b>¿Estas casado?</b>
+            <input type="radio" name="p1">
+            <input type="radio" name="p2">
+            </p>
+            <p><b>Numero de hijos</b>
+                <input type="number" min="0" max= "12" name="hijos" id="">
+            </p>
+            <input type="submit" value="Enviar">
+        </fieldset>
+    </form>
+<hr>
+    <form method="post">
+        <fieldset>
+            <legend><B>Consulta y regalo</B></legend>
+            <textarea cols="50" rows="4" placeholder="Introduce aqui el texto"></textarea>
+            <p><b>Fecha</b> <input type="date" name="fecha"></p>
+            <p><b>Rango de precios (1000€ - 2000€)</b><input type="range" min="1000" max="2000" step="100"> </p>
+            <p><b>Correo</b> <input type="email" name="correo" size="7"></p>
+            <p><b>¿De que color quieres el regalo?: <input type="color" name="color"></b></p>
+            <p><b>Grado de ocupacion</b> <progress name="progreso" max="100" value="80"></p>
+            <input type="submit" value="Enviar datos">
+        </fieldset>
+    </form>
+    <hr>
+    <iframe width="1000" height="750" src="https://www.youtube.com/embed/IHC1Ma6EBbE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</body>
+</html>
