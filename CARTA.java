@@ -13,12 +13,13 @@ public class CARTA {
 		
 	}
 	
-	public CARTA (int palo,int numero, int figura){
+	public CARTA (int palo,int numero){ /*int figura*/
 		this.palo = palo;
 		this.numero = numero;
-		this.valor = Generar_valor();
-		this.figura = figura;
+		this.valor = this.Generar_valor();
+		//this.figura = this.ConvertirAFigura();
 	}
+
 
 	//SETTERS Y GETTERS
 	public int getPalo() {
@@ -35,19 +36,17 @@ public class CARTA {
 
 	public void setNumero(int numero) {
 		this.numero = numero;
+		this.valor = this.Generar_valor();
 	}
 
 	public int getValor() {
 		return valor;
 	}
-
-	public void setValor(int valor) {
-		this.valor = valor;
-	}
 	
 	//METODO 
 	public String ConvertirAPalo (){
 		String palo = "";
+		
 		if (this.palo == 1){
 			palo = "CORAZONES";
 		}
@@ -64,7 +63,11 @@ public class CARTA {
 	}
 		
 	public int Generar_valor(){
+		int valor = 0;
 		
+		if (this.numero<10){
+			valor = this.numero;
+		}
 		if (this.numero == 13){
 			valor = 10;
 		}
@@ -78,6 +81,7 @@ public class CARTA {
 	}
 	public String ConvertirAFigura (){
 		String figura = "";
+		
 		if (this.figura == 11){
 			figura = "SOTA";
 		}
@@ -93,6 +97,6 @@ public class CARTA {
 	
 	@Override
 	public String toString() {
-		return "La carta es  ["+this.numero+" de palo "+ConvertirAPalo()+" y de valor "+this.valor+" y su figura es "+this.figura+"]";
-	}
+		return "La carta es "+this.numero+" de "+ConvertirAPalo()+" y de valor "+this.valor ;
+}
 }

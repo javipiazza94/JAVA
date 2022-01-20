@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class JUGADOR {
 	
 	//ATRIBUTOS
-	private int id_jugador;
-	private ArrayList <CARTA> mano = new ArrayList <CARTA> ();
+	private String id_jugador;
+	private ArrayList <CARTA> mano;
 	private int valor_mano;
 	private boolean plantado;
 	
@@ -14,35 +14,50 @@ public class JUGADOR {
 	public JUGADOR (){
 		
 	}
-	public JUGADOR (int id_jugador){
+	public JUGADOR (String id_jugador){
 		this.id_jugador = id_jugador;
-		this.mano = mano;
-		plantado = false;
+		this.mano = new ArrayList<CARTA>();
+		this.valor_mano = 0;
+		this.plantado = false;
 		
 	}
 
 	//GETTERS Y SETTERS
-	public int getId_jugador() {
+	public String getId_jugador() {
 		return id_jugador;
 	}
 
-	public void setId_jugador(int id_jugador) {
+	public void setId_jugador(String id_jugador) {
 		this.id_jugador = id_jugador;
 	}
-
+	public ArrayList<CARTA> getMano() {
+		return mano;
+	}
+	public int getValor_mano() {
+		return valor_mano;
+	}
+	public boolean isPlantado() {
+		return plantado;
+	}
 	
 	//METODOS
 	
 	public int Comprobar_mano () {
-		return valor_mano;
+		return this.valor_mano;
 	}
-	public void Pedir_carta (){
-		
+	public void Pedir_carta (MAZO Baraja){
+		CARTA robada = Baraja.Sacar();
+		this.mano.add(robada);
+		this.valor_mano += robada.getValor();
+		Baraja.eliminar_carta();
 	}
-	public boolean plantarse (){
-		return plantado = true;
+	public void plantarse (){
+			this.plantado = true;
 	}
 	
-	
+	@Override
+	public String toString (){
+		return this.id_jugador + " tiene la siguiente mano "+this.mano+ " y tiene un valor "+this.valor_mano; 
+	}
 
 }

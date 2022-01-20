@@ -7,16 +7,17 @@ public class MAZO {
 	
 	//ATRIBUTOS
 	private ArrayList <CARTA> carta;
-	private final int numero_cartas = 52;
+	private int numero_cartas = 52;
 	
 	//CONSTRUCTOR
 	public MAZO (){
-		for ( int i = 0; i<4 ; i++){
-			for (int j = 0; j<13 ; j++){
-				CARTA carta = new CARTA (i,j, 0);
-				this.carta.add(carta);
+		carta=new ArrayList<CARTA>();
+		for ( int i = 1; i<=4 ; i++){
+			for (int j = 1; j<=13 ; j++){
+				this.carta.add(new CARTA (i,j));
 			}
 		}
+		this.numero_cartas = carta.size();
 	}
 
 	//GETTERS Y SETTERS
@@ -26,6 +27,7 @@ public class MAZO {
 
 	public void setCarta(ArrayList<CARTA> carta) {
 		this.carta = carta;
+		this.numero_cartas=carta.size();
 	}
 
 	public int getNumero_cartas() {
@@ -39,15 +41,16 @@ public class MAZO {
 	}
 	
 	public CARTA Sacar(){
-		CARTA aux = new CARTA ();
-		aux = carta.get(0);
-		carta.remove(0);
-		return aux;
+		return this.carta.get(0);
+	}
+	
+	public void eliminar_carta(){
+		this.carta.remove(0);
 	}
 	
 	@Override
 	public String toString() {
-		return this.carta.toString();
+		return "El mazo tiene " +this.carta.toString();
 	}
 	
 }
