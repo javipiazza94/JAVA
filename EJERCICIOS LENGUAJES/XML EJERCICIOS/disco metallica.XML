@@ -1,0 +1,43 @@
+<xml> version="1.0" encoding="iso-8859-1?"
+<Biblioteca>
+	<Disco>
+		<Titulo>Master Of Puppets</Titulo>
+
+		<Autor>Metallica</Autor>
+		<Cancion>Battery </Cancion>
+		<Duracion>5:12 </Duracion>
+
+		<Autor>Metallica</Autor>
+		<Cancion>Master of Puppets </Cancion>
+		<Duracion>8:35 </Duracion>
+
+		<Autor>Metallica</Autor>
+		<Cancion>The Thing That Should Not Be </Cancion>
+		<Duracion>6:36 </Duracion>
+
+		<Autor>Metallica</Autor>
+		<Cancion> Welcome Home (Sanitarium)</Cancion>
+		<Duracion> 6:27</Duracion>
+
+		<Autor>Metallica</Autor>
+		<Cancion> Disposable Heroes</Cancion>
+		<Duracion> 8:16</Duracion>
+	
+		<Autor>Metallica</Autor>
+		<Cancion>Leper Messiah </Cancion>
+		<Duracion>5:39 </Duracion>
+
+		<Autor>Metallica</Autor>
+		<Cancion>Orion </Cancion>
+		<Duracion>8:27 </Duracion>
+
+		<Autor>Metallica</Autor>
+		<Cancion>Damage. Inc </Cancion>
+		<Duracion>5:32 </Duracion>
+
+	</Disco>
+</Biblioteca>
+
+
+
+			
