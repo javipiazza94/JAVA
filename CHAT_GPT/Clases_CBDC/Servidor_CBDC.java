@@ -9,7 +9,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Date;
+import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -156,6 +156,7 @@ public class Servidor_CBDC extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				double numero = Double.parseDouble(carbono.getText().toString());
 				BCE.modificarLimiteHuellaCuenta(numero);
+				System.out.println(modelo.obtenerLimiteHuellaCarbono());
 				;
 			}
 		});
@@ -166,6 +167,7 @@ public class Servidor_CBDC extends JFrame {
 		IRPF_boton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				BCE.establecerTramosIrpf();
+				System.out.println(modelo.aplicarIRPF());
 			}
 		});
 		IRPF_boton.setBounds(315, 235, 116, 25);
@@ -179,6 +181,7 @@ public class Servidor_CBDC extends JFrame {
 				try {
 					Date date = (Date) sdf.parse(fecha_caducidad2);
 					BCE.establecerCaducidadDinero(date);
+						System.out.println(date);
 
 				} catch (ParseException e1) {
 					System.out.println(e1.getMessage());
