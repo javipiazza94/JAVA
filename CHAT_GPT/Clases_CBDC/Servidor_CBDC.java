@@ -29,7 +29,10 @@ public class Servidor_CBDC extends JFrame {
 	private static final long serialVersionUID = -2809579001833735375L;
 	private JPanel milamina;
 	public final String IP = "localhost";
-	public final int Puerto = 9978;
+	public final int _PuertoSaldos = 9978;
+	public final int _PuertoInteres = 9979;
+	public final int _PuertoIRPF = 9980;
+	public final int Puerto_carbono = 9981
 	private JLabel bce_logo, emision, interes, EstableceLimiteCO2, AplicarIrpf, caducidad_dinero;
 	private JTextField cantidad, tipo_interes, carbono, fecha_caducidad;
 	private JButton Emitir, tipo_interes_boton, carbono_boton, IRPF_boton, tipo_interes_boton_1;
@@ -134,10 +137,29 @@ public class Servidor_CBDC extends JFrame {
 				double numero = Double.parseDouble(cantidad.getText().toString());
 				BCE.crearDineroTotal(numero);
 				System.out.println(modelo.obtenerSaldo());
-
-			}
+				Thread hiloEmitir = new Thread(new Runnable() {
+	                public void run() {
+				try {
+					ServerSocket socket_servidor = new ServerSocket(_PuertoSaldos);
+					while (true) {
+						Socket socket_cliente = socket_servidor.accept();
+						DataOutputStream entrada = new DataOutputStream(socket_cliente.getOutputStream());
+						entrada.writeDouble(modelo.obtenerSaldo());
+						entrada.close();
+						socket_servidor.close();
+						socket_cliente.close();	
+					}
+					
+				} catch (IOException e1) {
+					System.out.println(e1.getMessage());
+				}
+			} 
 		});
-		Emitir.setBounds(462, 120, 116, 25);
+				  // Inicia el hilo
+	            hiloEmitir.start();
+	        }
+		 });
+		Emitir.setBounds(462, 120, 126, 25);
 		milamina.add(Emitir);
 
 		tipo_interes_boton = new JButton("Tipo de interes");
@@ -146,9 +168,27 @@ public class Servidor_CBDC extends JFrame {
 				double numero = Double.parseDouble(tipo_interes.getText().toString());
 				BCE.establecerTipoInteres(numero);
 				System.out.println(modelo.obtenerInteresBancoCentral());
+				Thread hiloEmitir = new Thread(new Runnable() {
+	                public void run() {
+				try {
+					ServerSocket socket_servidor = new ServerSocket(_PuertoInteres);
+					Socket socket_cliente = socket_servidor.accept();
+					DataOutputStream entrada = new DataOutputStream(socket_cliente.getOutputStream());
+					entrada.writeDouble(numero);
+					entrada.flush();
+					entrada.close();
+					socket_servidor.close();
+					socket_cliente.close();
+				} catch (IOException e1) {
+					System.out.println(e1.getMessage());
+				}
 			}
 		});
-		tipo_interes_boton.setBounds(462, 154, 116, 25);
+				  // Inicia el hilo
+	            hiloEmitir.start();
+	        }
+		 });
+		tipo_interes_boton.setBounds(462, 154, 126, 25);
 		milamina.add(tipo_interes_boton);
 
 		carbono_boton = new JButton("CO2");
@@ -157,7 +197,17 @@ public class Servidor_CBDC extends JFrame {
 				double numero = Double.parseDouble(carbono.getText().toString());
 				BCE.modificarLimiteHuellaCuenta(numero);
 				System.out.println(modelo.obtenerLimiteHuellaCarbono());
-				;
+				  try {
+					ServerSocket socket_servidor = new ServerSocket(Puerto_carbono);
+					Socket socket_cliente = socket_servidor.accept();
+					DataOutputStream entrada = new DataOutputStream(socket_cliente.getOutputStream());
+					entrada.writeDouble(modelo.obtenerLimiteHuellaCarbono());
+					entrada.close();
+					socket_servidor.close();
+					socket_cliente.close();
+				} catch (IOException e1) {
+					System.out.println(e1.getMessage());
+				}
 			}
 		});
 		carbono_boton.setBounds(462, 189, 116, 25);
@@ -166,10 +216,27 @@ public class Servidor_CBDC extends JFrame {
 		IRPF_boton = new JButton("IRPF");
 		IRPF_boton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BCE.establecerTramosIrpf();
+				BCE.establecerTramosIrpfCuenta(modelo);
 				System.out.println(modelo.aplicarIRPF());
-			}
+				Thread hiloEmitir = new Thread(new Runnable() {
+	                public void run() {
+				try {
+					ServerSocket socket_servidor = new ServerSocket(_PuertoIRPF);
+					Socket socket_cliente = socket_servidor.accept();
+					DataOutputStream entrada = new DataOutputStream(socket_cliente.getOutputStream());
+					entrada.writeDouble(modelo.calcularPorcentajeAplicadoIRPF());
+					entrada.close();
+					socket_servidor.close();
+					socket_cliente.close();
+				} catch (IOException e1) {
+					System.out.println(e1.getMessage());
+				}								
+			} 
 		});
+		  // Inicia el hilo
+        hiloEmitir.start();
+    }
+ });
 		IRPF_boton.setBounds(315, 235, 116, 25);
 		milamina.add(IRPF_boton);
 
@@ -181,7 +248,7 @@ public class Servidor_CBDC extends JFrame {
 				try {
 					Date date = (Date) sdf.parse(fecha_caducidad2);
 					BCE.establecerCaducidadDinero(date);
-						System.out.println(date);
+					System.out.println(date);
 
 				} catch (ParseException e1) {
 					System.out.println(e1.getMessage());
@@ -192,26 +259,5 @@ public class Servidor_CBDC extends JFrame {
 		tipo_interes_boton_1.setBounds(462, 273, 116, 25);
 		milamina.add(tipo_interes_boton_1);
 
-		/*
-		 * Thread hilo = new Thread(this); hilo.start();
-		 * 
-		 * }
-		 * 
-		 * @Override public void run() {
-		 * 
-		 * try { ServerSocket socket_servidor = new ServerSocket(Puerto);
-		 * 
-		 * while (true) { Socket socket_cliente = socket_servidor.accept();
-		 * DataInputStream entrada = new
-		 * DataInputStream(socket_cliente.getInputStream()); String mensaje =
-		 * entrada.readUTF();
-		 * 
-		 * areaTexto.append("\n" + mensaje); socket_cliente.close(); }
-		 * 
-		 * } catch (IOException e) { e.printStackTrace(); }
-		 * 
-		 * 
-		 * }
-		 */
 	}
 }
