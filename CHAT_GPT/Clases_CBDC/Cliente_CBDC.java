@@ -20,7 +20,93 @@ import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 public class Cliente_CBDC extends JFrame {
+	public static void comunicarlimiteHuellaCarbono(Cuenta_bancaria_CBDC modelo, JLabel carbono) {
+		try {
+			// Crea un socket para conectarse al servidor
+			Socket socket = new Socket("localhost", 9981);
+			// Crea un DataInputStream para recibir datos del servidor
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			// Recibe la cantidad de huella permitida por el servidor
+			double cantidadpermitida = input.readDouble();
+			// Modificamos la huella de carbono
+			modelo.modificarLimiteHuellaCarbono(cantidadpermitida);;
+			carbono.setText(String.valueOf(cantidadpermitida));
+			// Cierra el socket y el DataInputStream
+			input.close();
+			socket.close();
+		} catch (ConnectException e) {
+	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
+	    } catch (IOException e) {
+			e.printStackTrace();
+		} 
+	}
 	
+	public static void comunicarSaldos(Cuenta_bancaria_CBDC modelo, JLabel Saldo) {
+		try {
+			// Crea un socket para conectarse al servidor
+			Socket socket = new Socket("localhost", 9978);
+			// Crea un DataInputStream para recibir datos del servidor
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			// Recibe la cantidad de dinero emitida por el servidor
+			double cantidadEmitida = input.readDouble();
+			// Utiliza la cantidad de dinero emitida para actualizar el saldo en la cuenta
+			// del cliente
+			modelo.depositar(cantidadEmitida);
+			Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+			// Cierra el socket y el DataInputStream
+			input.close();
+			socket.close();
+		} catch (ConnectException e) {
+	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
+	    } catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void comunicarInteres(Cuenta_bancaria_CBDC modelo, JLabel interes, JLabel saldo) {
+		try {
+			// Crea un socket para conectarse al servidor
+			Socket socket = new Socket("localhost", 9979);
+			// Crea un DataInputStream para recibir datos del servidor
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			// Recibe el tipo de interés emitido por el servidor
+			double interesEmitida = input.readDouble();
+			// Utiliza el tipo de interés emitido para actualizar la cuenta bancaria del
+			// cliente
+			modelo.modificarTipoInteres(interesEmitida);
+			interes.setText(String.valueOf(interesEmitida));
+			saldo.setText(String.valueOf(modelo.aplicarTipoInteres()));
+			// Cierra el socket y el DataInputStream
+			input.close();
+			socket.close();
+		} catch (ConnectException e) {
+	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
+	    } catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void comunicarIRPF(Cuenta_bancaria_CBDC modelo, JLabel IRPF,  JLabel saldo) {
+		try {
+			// Crea un socket para conectarse al servidor
+			Socket socket = new Socket("localhost", 9980);
+			// Crea un DataInputStream para recibir datos del servidor
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			// Recibe la cantidad de dinero emitida por el servidor
+			 double porcentajeIRPF = input.readDouble();
+			 double valorIRPF = modelo.obtenerSaldo() * (porcentajeIRPF / 100);
+		        modelo.retirar(valorIRPF);
+		        IRPF.setText(String.valueOf(porcentajeIRPF));
+		        saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+			// Cierra el socket y el DataInputStream
+			input.close();
+			socket.close();
+		} catch (ConnectException e) {
+	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
+	    } catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	public String ImprimirOperatividad(Cuenta_bancaria_CBDC Cuentas) {
 		String res = null;
 		if (Cuentas.EsOperativa()) {
@@ -276,8 +362,22 @@ public class Cliente_CBDC extends JFrame {
 			}
 		});
 		gastar_boton.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
-		gastar_boton.setBounds(487, 95, 118, 31);
-		milamina.add(gastar_boton);			
-		
+		gastar_boton.setBounds(484, 95, 118, 31);
+		milamina.add(gastar_boton);
+
+		JButton actualizarSaldo = new JButton("Actualizar datos");
+		actualizarSaldo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				comunicarSaldos(modelo, Saldo);
+				comunicarInteres(modelo, interes, Saldo);
+				comunicarIRPF(modelo, IRPF, Saldo);
+				comunicarlimiteHuellaCarbono(modelo, carbono);
+			}
+		});
+		actualizarSaldo.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
+		actualizarSaldo.setBounds(483, 137, 150, 31);
+		milamina.add(actualizarSaldo);
+
 	}
+
 }
