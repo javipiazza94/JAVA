@@ -1,5 +1,6 @@
 package Sockets;
 
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -8,6 +9,8 @@ import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -27,8 +30,9 @@ public class Servidor {
 class marco_servidor extends JFrame implements Runnable{
 	
 	public final String IP = "192.168.1.38";
-	public final int Puerto = 9999;
+	public final int Puerto = 9999;	
 	private TextArea areaTexto;
+
 	public marco_servidor() {
 		setResizable(true);
 		Toolkit pantalla = Toolkit.getDefaultToolkit();
@@ -57,17 +61,28 @@ class marco_servidor extends JFrame implements Runnable{
 		
 		try {
 			ServerSocket socket_servidor = new ServerSocket(Puerto);
-			
+			String ip, nick, mensaje; //Para coger los datos
+			paqueteEnvio recibido; //instanciamos el paquete recibido
 			while (true) {
 				Socket socket_cliente = socket_servidor.accept();
+				ObjectInputStream entrada = new ObjectInputStream(socket_cliente.getInputStream());
+				recibido = (paqueteEnvio) entrada.readObject(); //leemos el paquete
+				ip = recibido.getDestinatario();
+				nick = recibido.getNick();
+				mensaje = recibido.getCampo();
+				/*
 				DataInputStream entrada = new DataInputStream(socket_cliente.getInputStream());
 				String mensaje = entrada.readUTF();
-				
-				areaTexto.append("\n" + mensaje);
+				areaTexto.append("\n" + mensaje);*/	
+				areaTexto.append("\n" + nick+ ": " + mensaje +" para "+ ip);
+				Socket socket_destinatario = new Socket(ip, 9090);
+				ObjectOutputStream envio = new ObjectOutputStream(socket_destinatario.getOutputStream());
+				envio.writeObject(recibido);
+				socket_destinatario.close();
 				socket_cliente.close();
-			}
-					
-		} catch (IOException e) {
+				
+			}	
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		
