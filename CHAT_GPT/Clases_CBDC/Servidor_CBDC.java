@@ -32,7 +32,7 @@ public class Servidor_CBDC extends JFrame {
 	public final int _PuertoSaldos = 9978;
 	public final int _PuertoInteres = 9979;
 	public final int _PuertoIRPF = 9980;
-	public final int Puerto_carbono = 9981
+	public final int Puerto_carbono = 9981;
 	private JLabel bce_logo, emision, interes, EstableceLimiteCO2, AplicarIrpf, caducidad_dinero;
 	private JTextField cantidad, tipo_interes, carbono, fecha_caducidad;
 	private JButton Emitir, tipo_interes_boton, carbono_boton, IRPF_boton, tipo_interes_boton_1;
