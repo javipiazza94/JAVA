@@ -232,6 +232,8 @@ public class Cuenta_bancaria_CBDC {
 
 	public void retirar(double cantidad) {
 		this.saldo -= cantidad;
+		if (saldo >= 0) {
+	        operativa = true;}
 		agregarTransaccion();
 	}
 
