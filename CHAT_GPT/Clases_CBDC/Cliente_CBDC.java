@@ -144,16 +144,16 @@ public class Cliente_CBDC extends JFrame {
 
 	public String ImprimirOperatividad(Cuenta_bancaria_CBDC Cuentas) {
 		String res = null;
-		if (Cuentas.EsOperativa()) {
+		if (Cuentas.EsOperativa()==true) {
 			res = "SÍ";
-		} else if(Cuentas.obtenerSaldo()<0){
-			res = "NO";
-		}else if(Cuentas.obtenerLimiteHuellaCarbono()<Cuentas.calcularHuellaCarbonoTotal()){
-			res = Cuentas.verificarLimite();
-		}else {
+		}
+		if (Cuentas.EsOperativa()==false) {
 			res = "NO";
 		}
-		return res
+		if(Cuentas.obtenerLimiteHuellaCarbono()<Cuentas.calcularHuellaCarbonoTotal()){
+			res = Cuentas.verificarLimite();
+		}
+		return res;
 	}
 
 	public String ImprimirSexo(Cuenta_bancaria_CBDC Cuentas) {
@@ -402,6 +402,7 @@ public class Cliente_CBDC extends JFrame {
 				double numero = Double.parseDouble(ingresar_cantidad.getText().toString());
 				modelo.depositar(numero);
 				Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+				booleano_operativa.setText(ImprimirOperatividad(modelo));
 			}
 		});
 		ingresar_boton.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
@@ -414,6 +415,7 @@ public class Cliente_CBDC extends JFrame {
 				double numero = Double.parseDouble(gastar_cantidad.getText().toString());
 				modelo.retirar(numero);
 				Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+				booleano_operativa.setText(ImprimirOperatividad(modelo));
 			}
 		});
 		gastar_boton.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
