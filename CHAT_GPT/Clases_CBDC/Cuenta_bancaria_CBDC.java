@@ -225,6 +225,8 @@ public class Cuenta_bancaria_CBDC {
 	// Método para depositar dinero
 	public void depositar(double cantidad) {
 		this.saldo += cantidad;
+		if (saldo < 0) {
+	        operativa = false;}
 		agregarTransaccion();
 	}
 
