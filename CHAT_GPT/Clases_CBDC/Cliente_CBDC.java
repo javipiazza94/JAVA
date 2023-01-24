@@ -145,11 +145,15 @@ public class Cliente_CBDC extends JFrame {
 	public String ImprimirOperatividad(Cuenta_bancaria_CBDC Cuentas) {
 		String res = null;
 		if (Cuentas.EsOperativa()) {
-			res = "La cuenta esta operativa";
-		} else {
-			res = "La cuenta NO esta operativa";
+			res = "SÍ";
+		} else if(Cuentas.obtenerSaldo()<0){
+			res = "NO";
+		}else if(Cuentas.obtenerLimiteHuellaCarbono()<Cuentas.calcularHuellaCarbonoTotal()){
+			res = Cuentas.verificarLimite();
+		}else {
+			res = "NO";
 		}
-		return res;
+		return res
 	}
 
 	public String ImprimirSexo(Cuenta_bancaria_CBDC Cuentas) {
