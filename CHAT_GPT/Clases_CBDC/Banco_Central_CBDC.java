@@ -48,7 +48,11 @@ public class Banco_Central_CBDC {
 		Date fechaActual = new Date();
 		for (Cuenta_bancaria_CBDC cuenta_bancaria_CBDC : cuentasTotales) {
 			if (fecha.before(fechaActual)) {
-				cuenta_bancaria_CBDC.modificarSaldo(cuenta_bancaria_CBDC.obtenerSaldo() / 2);
+				double saldo = cuenta_bancaria_CBDC.obtenerSaldo();
+				double penalizacion = saldo / 2;
+				 saldo -= penalizacion;
+				System.out.println("La cuenta ha caducado. Se ha aplicado una penalización de " + penalizacion
+						+ " al saldo actual de " + saldo);
 			}
 		}
 	}

@@ -16,10 +16,44 @@ import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.awt.event.ActionEvent;
 
 public class Cliente_CBDC extends JFrame {
+	public static void comunicarCaducidad(Cuenta_bancaria_CBDC modelo, JLabel caducidad, JLabel Saldo, Banco_Central_CBDC bce) throws ParseException {
+		try {
+			// Crea un socket para conectarse al servidor
+			Socket socket = new Socket("localhost", 9982);
+			// Crea un DataInputStream para recibir datos del servidor
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			// Recibe la fecha casteada a String por el servidor
+			String fecha_caducidad = input.readUTF();
+			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+			String fechaCaducidad = formato.format(modelo.obtenerCaducidad());
+			// Modificamos fecha
+			modelo.modificarCaducidad(modelo.obtenerCaducidad());
+			//Aplicamos la caducidad al dinero por el banco central
+			bce.establecerCaducidadDineroenCuenta(modelo.obtenerCaducidad(), modelo);
+			//Escribimos los resultados
+			caducidad.setText(String.valueOf(fecha_caducidad));
+			Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+			// Cierra el socket y el DataInputStream
+			input.close();
+			socket.close();
+		} catch (ConnectException e) {
+	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
+	    } catch (IOException e) {
+			e.printStackTrace();
+		} 
+	}
 	public static void comunicarlimiteHuellaCarbono(Cuenta_bancaria_CBDC modelo, JLabel carbono) {
 		try {
 			// Crea un socket para conectarse al servidor
@@ -107,44 +141,46 @@ public class Cliente_CBDC extends JFrame {
 			e.printStackTrace();
 		}
 	}
+
 	public String ImprimirOperatividad(Cuenta_bancaria_CBDC Cuentas) {
 		String res = null;
 		if (Cuentas.EsOperativa()) {
 			res = "La cuenta esta operativa";
-		}else {
-			res= "La cuenta NO esta operativa";
+		} else {
+			res = "La cuenta NO esta operativa";
 		}
 		return res;
 	}
-	
+
 	public String ImprimirSexo(Cuenta_bancaria_CBDC Cuentas) {
 		String res = null;
-		if (Cuentas.obtenerSexo()=='h') {
+		if (Cuentas.obtenerSexo() == 'h') {
 			res = "Hombre";
-		}else {
-			res= "Mujer";
+		} else {
+			res = "Mujer";
 		}
 		return res;
 	}
-	
+
 	public String ImprimirComunitario(Cuenta_bancaria_CBDC Cuentas) {
 		String res = null;
 		if (Cuentas.obtenerComunitario()) {
 			res = "SI";
-		}else {
-			res= "NO";
+		} else {
+			res = "NO";
 		}
 		return res;
 	}
 
 	private JPanel milamina;
-	JLabel Saldo, IBAN, Cliente_label, nombre, DNI_label, dni, labelBanco, saldoLabel, labelNumeroDeCuenta, labelhuellaCarbono,
-	carbono, labelTipoDeInteres, interes, labelOperatividad, booleano_operativa, label_sexo, Sexo, label_comunitario, comunitario,
-	labelIRPF, IRPF;
+	JLabel Saldo, IBAN, Cliente_label, nombre, DNI_label, dni, labelBanco, saldoLabel, labelNumeroDeCuenta,
+			labelhuellaCarbono, carbono, labelTipoDeInteres, interes, labelOperatividad, booleano_operativa, label_sexo,
+			Sexo, label_comunitario, comunitario, labelIRPF, IRPF;
 	private JTextField ingresar_cantidad, gastar_cantidad;
 	private Banco_Central_CBDC BCE;
 	private ArrayList<Cuenta_bancaria_CBDC> Cuentas;
 	private Cuenta_bancaria_CBDC modelo;
+
 	/**
 	 * Launch the application.
 	 */
@@ -159,6 +195,7 @@ public class Cliente_CBDC extends JFrame {
 				}
 			}
 		});
+
 	}
 
 	/**
@@ -169,8 +206,6 @@ public class Cliente_CBDC extends JFrame {
 		// INSTANCIAMOS EL BANCO CENTRAL Y LAS CUENTAS
 		BCE = new Banco_Central_CBDC();
 		modelo = new Cuenta_bancaria_CBDC("Juan Pérez", 'h', 0, 10000.);
-		BCE.crearCuenta(modelo);
-		System.out.println(modelo.obtenerDatosCuenta());
 
 		// CREAMOS LAS DIMENSIONES DEL FRAME
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -187,7 +222,7 @@ public class Cliente_CBDC extends JFrame {
 		setIconImage(imagen);
 		setBackground(SystemColor.window);
 
-		// LOS LABELS	
+		// LOS LABELS
 		labelBanco = new JLabel("");
 		labelBanco.setIcon(new ImageIcon(
 				"C:\\Users\\javip\\OneDrive\\Documents\\DAM\\ACTIVIDADES\\EJERCICIOS DE PROGRAMACIÓN\\JAVA\\PROYECTO_CBDC\\src\\BANCO EURO.png"));
@@ -199,7 +234,7 @@ public class Cliente_CBDC extends JFrame {
 		saldoLabel.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
 		saldoLabel.setBounds(250, 52, 218, 31);
 		milamina.add(saldoLabel);
-		
+
 		labelNumeroDeCuenta = new JLabel("Numero de cuenta:");
 		labelNumeroDeCuenta.setHorizontalAlignment(SwingConstants.CENTER);
 		labelNumeroDeCuenta.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
@@ -216,13 +251,13 @@ public class Cliente_CBDC extends JFrame {
 		Cliente_label = new JLabel("Cliente:");
 		Cliente_label.setHorizontalAlignment(SwingConstants.LEFT);
 		Cliente_label.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		Cliente_label.setBounds(10, 137, 76, 31);
+		Cliente_label.setBounds(10, 129, 76, 31);
 		milamina.add(Cliente_label);
 
 		nombre = new JLabel("");
 		nombre.setHorizontalAlignment(SwingConstants.LEFT);
 		nombre.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		nombre.setBounds(107, 137, 361, 31);
+		nombre.setBounds(96, 129, 361, 31);
 		milamina.add(nombre);
 		nombre.setText(modelo.obtenerNombreTitular());
 
@@ -237,94 +272,110 @@ public class Cliente_CBDC extends JFrame {
 		DNI_label = new JLabel("DNI:");
 		DNI_label.setHorizontalAlignment(SwingConstants.LEFT);
 		DNI_label.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		DNI_label.setBounds(10, 171, 76, 31);
+		DNI_label.setBounds(10, 154, 76, 31);
 		milamina.add(DNI_label);
 
 		dni = new JLabel("");
 		dni.setHorizontalAlignment(SwingConstants.LEFT);
 		dni.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		dni.setBounds(107, 171, 104, 31);
+		dni.setBounds(96, 154, 104, 31);
 		milamina.add(dni);
 		dni.setText(modelo.obtenerDNI());
-		
+
 		labelhuellaCarbono = new JLabel("Huella de carbono:");
 		labelhuellaCarbono.setHorizontalAlignment(SwingConstants.LEFT);
 		labelhuellaCarbono.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		labelhuellaCarbono.setBounds(10, 204, 160, 31);
+		labelhuellaCarbono.setBounds(10, 179, 160, 31);
 		milamina.add(labelhuellaCarbono);
-		
+
 		carbono = new JLabel("");
 		carbono.setHorizontalAlignment(SwingConstants.LEFT);
 		carbono.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		carbono.setBounds(174, 204, 118, 31);
+		carbono.setBounds(174, 179, 118, 31);
 		milamina.add(carbono);
 		carbono.setText(String.valueOf(modelo.calcularHuellaCarbonoTotal()));
 
 		labelTipoDeInteres = new JLabel("Tipo de interes:");
 		labelTipoDeInteres.setHorizontalAlignment(SwingConstants.LEFT);
 		labelTipoDeInteres.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		labelTipoDeInteres.setBounds(10, 236, 160, 31);
+		labelTipoDeInteres.setBounds(10, 204, 160, 31);
 		milamina.add(labelTipoDeInteres);
-		
+
 		interes = new JLabel("");
 		interes.setHorizontalAlignment(SwingConstants.LEFT);
 		interes.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		interes.setBounds(174, 236, 39, 31);
+		interes.setBounds(174, 204, 39, 31);
 		milamina.add(interes);
 		interes.setText(String.valueOf(modelo.obtenerInteresBancoCentral()));
-		
+
 		labelOperatividad = new JLabel("Operatividad:");
 		labelOperatividad.setHorizontalAlignment(SwingConstants.LEFT);
 		labelOperatividad.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		labelOperatividad.setBounds(10, 269, 135, 31);
+		labelOperatividad.setBounds(10, 254, 135, 31);
 		milamina.add(labelOperatividad);
-		
+
 		booleano_operativa = new JLabel("");
 		booleano_operativa.setHorizontalAlignment(SwingConstants.LEFT);
 		booleano_operativa.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		booleano_operativa.setBounds(134, 269, 230, 31);
+		booleano_operativa.setBounds(134, 254, 230, 31);
 		milamina.add(booleano_operativa);
 		booleano_operativa.setText(ImprimirOperatividad(modelo));
-		
+
 		label_sexo = new JLabel("Sexo:");
 		label_sexo.setHorizontalAlignment(SwingConstants.LEFT);
 		label_sexo.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		label_sexo.setBounds(10, 302, 67, 31);
+		label_sexo.setBounds(10, 279, 67, 31);
 		milamina.add(label_sexo);
-		
+
 		Sexo = new JLabel("");
 		Sexo.setHorizontalAlignment(SwingConstants.LEFT);
 		Sexo.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		Sexo.setBounds(107, 302, 118, 31);
+		Sexo.setBounds(107, 279, 118, 31);
 		milamina.add(Sexo);
 		Sexo.setText(ImprimirSexo(modelo));
-		
+
 		label_comunitario = new JLabel("Comunitario:");
 		label_comunitario.setHorizontalAlignment(SwingConstants.LEFT);
 		label_comunitario.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		label_comunitario.setBounds(10, 332, 118, 31);
+		label_comunitario.setBounds(10, 304, 118, 31);
 		milamina.add(label_comunitario);
-		
+
 		comunitario = new JLabel();
 		comunitario.setHorizontalAlignment(SwingConstants.LEFT);
 		comunitario.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		comunitario.setBounds(122, 332, 118, 31);
+		comunitario.setBounds(122, 304, 118, 31);
 		milamina.add(comunitario);
 		comunitario.setText(ImprimirComunitario(modelo));
-		
+
 		labelIRPF = new JLabel("El IRPF aplicado es:");
 		labelIRPF.setHorizontalAlignment(SwingConstants.LEFT);
 		labelIRPF.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		labelIRPF.setBounds(10, 365, 173, 31);
+		labelIRPF.setBounds(10, 329, 173, 31);
 		milamina.add(labelIRPF);
-		
+
 		IRPF = new JLabel("0.0");
 		IRPF.setHorizontalAlignment(SwingConstants.LEFT);
 		IRPF.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		IRPF.setBounds(186, 365, 39, 31);
+		IRPF.setBounds(186, 329, 106, 31);
 		milamina.add(IRPF);
 		IRPF.setText(String.valueOf(modelo.aplicarIRPF()));
 		
+		JLabel labelCaducidad = new JLabel("Caducidad:");
+		labelCaducidad.setHorizontalAlignment(SwingConstants.LEFT);
+		labelCaducidad.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
+		labelCaducidad.setBounds(10, 229, 104, 31);
+		milamina.add(labelCaducidad);
+		
+		JLabel caducidad = new JLabel((String) null);
+		caducidad.setHorizontalAlignment(SwingConstants.LEFT);
+		caducidad.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
+		caducidad.setBounds(117, 229, 135, 31);
+		milamina.add(caducidad);
+		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+		String fechaCaducidad = formato.format(modelo.obtenerCaducidad());
+		caducidad.setText(fechaCaducidad);
+
+
 		// LOS TEXFIELDS
 		gastar_cantidad = new JTextField();
 		gastar_cantidad.setHorizontalAlignment(SwingConstants.CENTER);
@@ -372,12 +423,18 @@ public class Cliente_CBDC extends JFrame {
 				comunicarInteres(modelo, interes, Saldo);
 				comunicarIRPF(modelo, IRPF, Saldo);
 				comunicarlimiteHuellaCarbono(modelo, carbono);
+				try {
+					comunicarCaducidad(modelo, caducidad, Saldo, BCE);
+				} catch (ParseException e1) {
+					System.out.println(e1.getMessage());
+				}
 			}
 		});
 		actualizarSaldo.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
 		actualizarSaldo.setBounds(483, 137, 150, 31);
 		milamina.add(actualizarSaldo);
+		
+		
 
 	}
-
 }

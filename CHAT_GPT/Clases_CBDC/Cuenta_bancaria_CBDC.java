@@ -1,7 +1,10 @@
 package Clases_CBDC;
 
 import java.security.SecureRandom;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +24,7 @@ public class Cuenta_bancaria_CBDC {
 	private boolean comunitario;
 	private double saldo;
 	private double IRPF;
+	private Date caducidad;
 	private List<String> transacciones;
 	private List<String> productos;
 	private Map<String, Double> huellasCarbono;
@@ -30,6 +34,7 @@ public class Cuenta_bancaria_CBDC {
 	private double tipoInteres;
 
 	// Constructor de la clase
+	@SuppressWarnings("deprecation")
 	public Cuenta_bancaria_CBDC(String nombreTitular, char sexoInicial, double saldoInicial,
 			double limiteHuellaCarbono) {
 		// Verifica si el número de cuenta ya ha sido utilizado
@@ -41,12 +46,13 @@ public class Cuenta_bancaria_CBDC {
 		SecureRandom random = new SecureRandom();
 		StringBuilder numeroCuentaBuilder = new StringBuilder();
 		for (int i = 0; i < 16; i++) {
-		int valorAleatorio = random.nextInt(10); // se cambia el rango a [0,9] para obtener solo números
-		numeroCuentaBuilder.append(valorAleatorio);
+			int valorAleatorio = random.nextInt(10); // se cambia el rango a [0,9] para obtener solo números
+			numeroCuentaBuilder.append(valorAleatorio);
 		}
 		// Asigna el número de cuenta generado al atributo de la clase
 		this.numeroCuenta = numeroCuentaBuilder.toString();
 		this.nombreTitular = nombreTitular;
+		this.caducidad = new Date();
 		this.DNI = generar_DNI();
 		this.saldo = saldoInicial;
 		this.IRPF = obtenerIRPF();
@@ -66,16 +72,22 @@ public class Cuenta_bancaria_CBDC {
 	public String obtenerDatosCuenta() {
 		return " Información de la cuenta CBDC:\r\n" + " El número de cuenta es: " + numeroCuenta + "\r\n"
 				+ " El Numero IBAN es: " + numeroIBAN + "\r\n" + " El nombre del titular: " + nombreTitular + "\r\n"
-				+ " El sexo del titular: " + sexo + "\r\n" + " Es trans: " + esTrans + "\r\n"
-				+ " Es comunitario: " + comunitario  + "\r\n"
+				+ " El sexo del titular: " + sexo + "\r\n" + " Es trans: " + esTrans + "\r\n" + " Es comunitario: "
+				+ comunitario + "\r\n" + " La caducidad del dinero es : " + caducidad + "\r\n"
 				+ " El DNI del titular es: " + DNI + "\r\n" + " El saldo es: " + this.saldo + "\r\n"
-				+ " La transacciones son: " + transacciones + "\r\n" + " Los productos adquiridos son: " + productos + "\r\n" + " La huella de carbono consumida es: " + huellasCarbono + "\r\n"
-				+ " El limite de huella de carbono es : " + limiteHuellaCarbono + "\r\n" + " La operatividad es " + operativa + "\r\n" 
-				+ " El tipo de interes es: " + tipoInteres + " por ciento\r\n" + " Lo pagado en impuestos por IPRF es: " + IRPF + " \r\n"
-				+ " El valor de la cuenta antes de impuestos y con tipo de interes aplicado es : " + aplicarTipoInteres() + "\r\n" 
-				+ " El porcentaje pagado en impuestos es: " + calcularPorcentajeAplicadoIRPF() + "\r\n" 
-				+ " El saldo de la cuenta con el IRPF aplicado es: " + aplicarIRPF() + "\r\n" +" "
-				+ verificarLimite();
+				+ " La transacciones son: " + transacciones + "\r\n" + " Los productos adquiridos son: " + productos
+				+ "\r\n" + " La huella de carbono consumida es: " + huellasCarbono + "\r\n"
+				+ " El limite de huella de carbono es : " + limiteHuellaCarbono + "\r\n" + " La operatividad es "
+				+ operativa + "\r\n" + " El tipo de interes es: " + tipoInteres + " por ciento\r\n"
+				+ " Lo pagado en impuestos por IPRF es: " + IRPF + " \r\n"
+				+ " El valor de la cuenta antes de impuestos y con tipo de interes aplicado es : "
+				+ aplicarTipoInteres() + "\r\n" + " El porcentaje pagado en impuestos es: "
+				+ calcularPorcentajeAplicadoIRPF() + "\r\n" + " El saldo de la cuenta con el IRPF aplicado es: "
+				+ aplicarIRPF() + "\r\n" + " " + verificarLimite();
+	}
+
+	public Date obtenerCaducidad() {
+		return caducidad;
 	}
 
 	public String obtenerNumeroCuenta() {
@@ -113,19 +125,19 @@ public class Cuenta_bancaria_CBDC {
 	public double obtenerLimiteHuellaCarbono() {
 		return limiteHuellaCarbono;
 	}
-	
+
 	public char obtenerSexo() {
 		return sexo;
 	}
-	
+
 	public boolean obtenerEsTrans() {
 		return esTrans;
 	}
-	
+
 	public boolean obtenerComunitario() {
 		return comunitario;
 	}
-	
+
 	public double obtenerIRPF() {
 		return IRPF;
 	}
@@ -136,6 +148,10 @@ public class Cuenta_bancaria_CBDC {
 
 	public void modificarSexo(char sexo) {
 		this.sexo = sexo;
+	}
+
+	public void modificarCaducidad(Date caducidad) {
+		this.caducidad = caducidad;
 	}
 
 	public void modificarComunitario(boolean comunitario) {
@@ -179,19 +195,19 @@ public class Cuenta_bancaria_CBDC {
 	public double aplicarTipoInteres() {
 		if (operativa) {
 			return this.saldo += this.saldo * (this.tipoInteres / 100);
-		}else {
+		} else {
 			return saldo;
 		}
-	} 
-	
-	// Metodo para aplicar el tipo de interes a la cuenta
+	}
+
+	// Metodo para aplicar IRPF a la cuenta
 	public double aplicarIRPF() {
-			if (operativa) {
-				return this.saldo - this.IRPF;
-			}else {
-				return this.saldo;
-			}
-		} 
+		if (operativa) {
+			return this.saldo - this.IRPF;
+		} else {
+			return this.saldo;
+		}
+	}
 
 	// Metodo para agregar transaccion
 	public void agregarTransaccion() {
@@ -289,6 +305,7 @@ public class Cuenta_bancaria_CBDC {
 		int checkDigit = 98 - modulo97(numeroCuentaString + numeroAleatorio);
 		return "ES" + String.format("%02d", checkDigit) + numeroCuentaString + numeroAleatorio;
 	}
+
 	private int modulo97(String numero) {
 		int m = 0;
 		for (int i = 0; i < numero.length(); i++) {
@@ -311,7 +328,7 @@ public class Cuenta_bancaria_CBDC {
 		// Devuelve el DNI como una cadena de 8 dígitos y una letra
 		return String.format("%08d%c", numeroDNI, letraDNI);
 	}
-	
+
 	public char generarSexo(char sex) { // METODO PARA GENERAR EL SEXO SI ESTA MAL ESCRITO
 		char sexoDefecto;
 		if (sex != 'h') {
@@ -321,9 +338,10 @@ public class Cuenta_bancaria_CBDC {
 		}
 		return sexoDefecto;
 	}
-	
-	//Calcula el tipo global del IRPF en la cuenta
-		public double calcularPorcentajeAplicadoIRPF() {
-			return (this.IRPF / this.saldo)* 100;
-		}
+
+	// Calcula el tipo global del IRPF en la cuenta
+	public double calcularPorcentajeAplicadoIRPF() {
+		return (this.IRPF / this.saldo) * 100;
+	}
+
 }
