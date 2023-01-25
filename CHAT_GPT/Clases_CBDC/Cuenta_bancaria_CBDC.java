@@ -15,23 +15,15 @@ import java.util.UUID;
 public class Cuenta_bancaria_CBDC {
 
 	// Atributos de la clase
-	private String numeroCuenta;
-	private String numeroIBAN;
-	private String nombreTitular;
-	private String DNI;
+	private String numeroCuenta, numeroIBAN, nombreTitular, DNI;
 	private char sexo;
-	private boolean esTrans;
-	private boolean comunitario;
-	private double saldo;
-	private double IRPF;
+	private boolean comunitario, esTrans,  operativa ;
+	private double saldo, IRPF, tipoInteres, limiteHuellaCarbono;
 	private Date caducidad;
 	private List<String> transacciones;
 	private List<String> productos;
 	private Map<String, Double> huellasCarbono;
-	private double limiteHuellaCarbono;
-	private boolean operativa;
 	private static Set<String> numerosCuentaUtilizados = new HashSet<>();
-	private double tipoInteres;
 
 	// Constructor de la clase
 	@SuppressWarnings("deprecation")
@@ -140,6 +132,10 @@ public class Cuenta_bancaria_CBDC {
 
 	public double obtenerIRPF() {
 		return IRPF;
+	}
+	
+	public void modificarProductos(List<String> productos) {
+		this.productos = productos;
 	}
 
 	public void modificarIRPF(double iRPF) {
