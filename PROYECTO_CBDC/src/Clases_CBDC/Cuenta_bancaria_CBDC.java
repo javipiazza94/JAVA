@@ -187,7 +187,7 @@ public class Cuenta_bancaria_CBDC {
 
 	// Metodo para aplicar el tipo de interes a la cuenta
 	public double aplicarTipoInteres() {
-		if (operativa) {
+		if (operativa ==true && this.saldo>0) {
 			return this.saldo += this.saldo * (this.tipoInteres / 100);
 		} else {
 			return saldo;
@@ -196,7 +196,7 @@ public class Cuenta_bancaria_CBDC {
 
 	// Metodo para aplicar IRPF a la cuenta
 	public double aplicarIRPF() {
-		if (operativa) {
+		if (operativa ==true && this.saldo>0) {
 			return this.saldo - this.IRPF;
 		} else {
 			return this.saldo;
@@ -339,7 +339,11 @@ public class Cuenta_bancaria_CBDC {
 
 	// Calcula el tipo global del IRPF en la cuenta
 	public double calcularPorcentajeAplicadoIRPF() {
-		return (this.IRPF / this.saldo) * 100;
+		double calculo = 0;
+		if (aplicarIRPF()>0) {
+			calculo = ((this.IRPF / this.saldo) * 100);
+		}
+		return calculo;
 	}
 
 }
