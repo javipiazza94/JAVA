@@ -75,6 +75,28 @@ public class Cliente_CBDC extends JFrame {
 		} 
 	}
 	
+	public static void comunicarSaldos2(Cuenta_bancaria_CBDC modelo, JLabel Saldo) {
+		try {
+			// Crea un socket para conectarse al servidor
+			Socket socket = new Socket("localhost", 9977);
+			// Crea un DataInputStream para recibir datos del servidor
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			// Recibe la cantidad de dinero emitida por el servidor
+			double cantidadEmitida = input.readDouble();
+			// Utiliza la cantidad de dinero emitida para actualizar el saldo en la cuenta
+			// del cliente
+			modelo.retirar(-cantidadEmitida);
+			Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+			// Cierra el socket y el DataInputStream
+			input.close();
+			socket.close();
+		} catch (ConnectException e) {
+	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
+	    } catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void comunicarSaldos(Cuenta_bancaria_CBDC modelo, JLabel Saldo) {
 		try {
 			// Crea un socket para conectarse al servidor
@@ -427,6 +449,7 @@ public class Cliente_CBDC extends JFrame {
 		actualizarSaldo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				comunicarSaldos(modelo, Saldo);
+				comunicarSaldos2(modelo, Saldo);
 				comunicarInteres(modelo, interes, Saldo);
 				comunicarIRPF(modelo, IRPF, Saldo);
 				comunicarlimiteHuellaCarbono(modelo, carbono);
@@ -435,6 +458,7 @@ public class Cliente_CBDC extends JFrame {
 				} catch (ParseException e1) {
 					System.out.println(e1.getMessage());
 				}
+				booleano_operativa.setText(ImprimirOperatividad(modelo));
 			}
 		});
 		actualizarSaldo.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
