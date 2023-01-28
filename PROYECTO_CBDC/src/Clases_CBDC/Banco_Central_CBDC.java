@@ -1,5 +1,6 @@
 package Clases_CBDC;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -191,6 +192,21 @@ public class Banco_Central_CBDC {
 			cuenta_bancaria_CBDC.retirar(cantidad);
 		}
 	}
+	
+	// Prestamos dinero de una cuenta
+		public void prestarDineroCuenta(Cuenta_bancaria_CBDC cuenta, double cantidad, Date plazoEntrega) {
+		    Date actualdate = new Date();
+			if (cuenta.EsOperativa()==true && cuenta.obtenerSaldo()>0 &&cantidad>0 && plazoEntrega.before(cuenta.obtenerCaducidad())) {
+				cuenta.modificarSaldo(cuenta.obtenerSaldo()+cantidad);;
+				cuenta.agregarTransaccion();
+			}
+			if (plazoEntrega.equals(actualdate) || plazoEntrega.before(actualdate)) {
+				cuenta.retirar(cantidad);
+				cuenta.retirar(cantidad * (this.interes / 100));
+				cuenta.agregarTransaccion();
+			}
+			
+		}
 
 	// Eliminamos dinero de una cuenta
 	public void eliminarDineroCuenta(Cuenta_bancaria_CBDC cuenta, double cantidad) {
