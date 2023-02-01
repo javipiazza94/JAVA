@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;

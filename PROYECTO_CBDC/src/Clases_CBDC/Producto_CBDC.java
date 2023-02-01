@@ -39,6 +39,12 @@ public class Producto_CBDC {
 		public void setEmpresa(String empresa) {
 			this.empresa = empresa;
 		}
+
+		@Override
+		public String toString() {
+			return "Producto_CBDC [precio=" + precio + ", huellaCarbono=" + huellaCarbono + ", nombre=" + nombre
+					+ ", empresa=" + empresa + "]";
+		}
 	    
 
 	    

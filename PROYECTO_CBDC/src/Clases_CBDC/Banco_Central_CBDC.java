@@ -1,6 +1,5 @@
 package Clases_CBDC;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -87,11 +86,6 @@ public class Banco_Central_CBDC {
 	public void cambiarLimiteHuellaCarbono(Cuenta_bancaria_CBDC cuenta, double carbono) {
 		cuenta.modificarLimiteHuellaCarbono(carbono);
 	}
-	
-	public double LimiteHuellaCarbonoInicial(Cuenta_bancaria_CBDC cuenta, double carbono) {
-		cuenta.modificarLimiteHuellaCarbono(carbono);
-		return carbono;
-	}
 
 	// Metodo para cambiar la huella de carbono total de todas las cuentas
 	public void modificarLimiteHuellaCuenta(double carbono) {
@@ -102,6 +96,7 @@ public class Banco_Central_CBDC {
 
 	// Metodo para cambiar la huella de carbono total de todas las cuentas por renta
 	public void modificarLimiteHuellaPorRenta() {
+
 		double carbono = 0;
 		for (Cuenta_bancaria_CBDC cuenta_bancaria_CBDC : cuentasTotales) {
 			if (cuenta_bancaria_CBDC.obtenerSaldo() < 10000) {
@@ -119,7 +114,8 @@ public class Banco_Central_CBDC {
 		}
 	}
 
-	// Metodo para establecer los tramos de IRPF total de todas las cuentas por renta
+	// Metodo para establecer los tramos de IRPF total de todas las cuentas por
+	// renta
 	public void establecerTramosIrpf() {
 		for (Cuenta_bancaria_CBDC cuenta_bancaria_CBDC : cuentasTotales) {
 			double irpf = 0;

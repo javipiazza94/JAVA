@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,17 +16,17 @@ public class Cuenta_bancaria_CBDC {
 	// Atributos de la clase
 	private String numeroCuenta, numeroIBAN, nombreTitular, DNI;
 	private char sexo;
-	private boolean comunitario, esPrestado,  operativa ;
+	private boolean comunitario, esPrestado, operativa;
 	private double saldo, IRPF, tipoInteres, limiteHuellaCarbono, huellaCarbonoTotal;
 	private Date caducidad;
-	private List<String> transacciones;
+	private List<Transacciones_CBDC> transacciones;
 	private List<Producto_CBDC> compras;
 	private static Set<String> numerosCuentaUtilizados = new HashSet<>();
-	
+
 	// Constructor de la clase
 	public Cuenta_bancaria_CBDC() {
 	}
-	
+
 	public Cuenta_bancaria_CBDC(String nombreTitular, char sexoInicial, double saldoInicial) {
 		// Verifica si el número de cuenta ya ha sido utilizado
 		if (numerosCuentaUtilizados.contains(numeroCuenta)) {
@@ -61,11 +62,11 @@ public class Cuenta_bancaria_CBDC {
 	public String obtenerDatosCuenta() {
 		return " Información de la cuenta CBDC:\r\n" + " El número de cuenta es: " + numeroCuenta + "\r\n"
 				+ " El Numero IBAN es: " + numeroIBAN + "\r\n" + " El nombre del titular: " + nombreTitular + "\r\n"
-				+ " El sexo del titular: " + sexo + "\r\n" + " Es trans: " + esPrestado + "\r\n" + " Es comunitario: "
+				+ " El sexo del titular: " + sexo + "\r\n" + " Le prestan: " + esPrestado + "\r\n" + " Es comunitario: "
 				+ comunitario + "\r\n" + " La caducidad del dinero es : " + caducidad + "\r\n"
 				+ " El DNI del titular es: " + DNI + "\r\n" + " El saldo es: " + this.saldo + "\r\n"
-				+ " La transacciones son: " + transacciones + "\r\n" + " Los productos adquiridos son: " + compras.toString()
-				+ "\r\n" + " La huella de carbono consumida es: " + huellaCarbonoTotal + "\r\n"
+				+ " La transacciones son: " + transacciones.toString() + "\r\n" + " Los productos adquiridos son: "
+				+ compras.toString() + "\r\n" + " La huella de carbono consumida es: " + huellaCarbonoTotal + "\r\n"
 				+ " El limite de huella de carbono es : " + limiteHuellaCarbono + "\r\n" + " La operatividad es "
 				+ operativa + "\r\n" + " El tipo de interes es: " + tipoInteres + " por ciento\r\n"
 				+ " Lo pagado en impuestos por IPRF es: " + IRPF + " \r\n"
@@ -82,7 +83,7 @@ public class Cuenta_bancaria_CBDC {
 	public void modificarHuellaCarbonoTotal(double huellaCarbonoTotal) {
 		this.huellaCarbonoTotal = huellaCarbonoTotal;
 	}
-	
+
 	public Date obtenerCaducidad() {
 		return caducidad;
 	}
@@ -115,7 +116,7 @@ public class Cuenta_bancaria_CBDC {
 		return this.compras;
 	}
 
-	public List<String> obtenerTransacciones() {
+	public List<Transacciones_CBDC> obtenerTransacciones() {
 		return this.transacciones;
 	}
 
@@ -138,7 +139,7 @@ public class Cuenta_bancaria_CBDC {
 	public double obtenerIRPF() {
 		return IRPF;
 	}
-	
+
 	public void modificarProductos(List<Producto_CBDC> productos) {
 		this.compras = productos;
 	}
@@ -173,7 +174,10 @@ public class Cuenta_bancaria_CBDC {
 
 	public void modificarSaldo(double saldo) {
 		this.saldo = saldo;
-		agregarTransaccion();
+		Transacciones_CBDC transaccion = new Transacciones_CBDC();
+		transaccion.setId(agregarTransaccion());
+		transaccion.setImporte(saldo);
+		transacciones.add(transaccion);
 	}
 
 	public void modificarNombreTitular(String nombreTitular) {
@@ -195,6 +199,10 @@ public class Cuenta_bancaria_CBDC {
 	// Metodo para aplicar el tipo de interes a la cuenta
 	public double aplicarTipoInteres() {
 		if (operativa) {
+			Transacciones_CBDC transaccion = new Transacciones_CBDC();
+			transaccion.setId(agregarTransaccion());
+			transaccion.setImporte(this.saldo += this.saldo * (this.tipoInteres / 100));
+			transacciones.add(transaccion);
 			return this.saldo += this.saldo * (this.tipoInteres / 100);
 		} else {
 			return saldo;
@@ -204,6 +212,10 @@ public class Cuenta_bancaria_CBDC {
 	// Metodo para aplicar IRPF a la cuenta
 	public double aplicarIRPF() {
 		if (operativa) {
+			Transacciones_CBDC transaccion = new Transacciones_CBDC();
+			transaccion.setId(agregarTransaccion());
+			transaccion.setImporte(saldo - IRPF);
+			transacciones.add(transaccion);
 			return this.saldo - this.IRPF;
 		} else {
 			return this.saldo;
@@ -211,26 +223,37 @@ public class Cuenta_bancaria_CBDC {
 	}
 
 	// Metodo para agregar transaccion
-	public void agregarTransaccion() {
+	public String agregarTransaccion() {
+		Transacciones_CBDC transaccion = new Transacciones_CBDC();
 		String id_transaccion = UUID.randomUUID().toString();
-		transacciones.add(id_transaccion);
+		transaccion.setId(id_transaccion);
+		transaccion.setCuenta(this);
+		transacciones.add(transaccion);
+		return id_transaccion;
 	}
-
 
 	// Método para depositar dinero
 	public void depositar(double cantidad) {
 		this.saldo += cantidad;
-		agregarTransaccion();
+		Transacciones_CBDC transaccion = new Transacciones_CBDC();
+		transaccion.setId(agregarTransaccion());
+		transaccion.setImporte(cantidad);
+		transacciones.add(transaccion);
+
 		if (saldo >= 0) {
-	        operativa = true;
-	        }
+			operativa = true;
+		}
 	}
 
 	public void retirar(double cantidad) {
 		this.saldo -= cantidad;
-		agregarTransaccion();
+		Transacciones_CBDC transaccion = new Transacciones_CBDC();
+		transaccion.setId(agregarTransaccion());
+		transaccion.setImporte(cantidad);
+		transacciones.add(transaccion);
 		if (saldo < 0) {
-	        operativa = false;}
+			operativa = false;
+		}
 	}
 
 	// Método para comprar
@@ -240,35 +263,42 @@ public class Cuenta_bancaria_CBDC {
 		if (!this.operativa) {
 			res = "La cuenta no está operativa";
 		}
-
 		// Verifica si la cuenta tiene suficiente saldo para realizar la compra
 		if (this.saldo < producto.getPrecio()) {
 			this.operativa = false;
 			res = "No tienes suficiente saldo para realizar esta compra";
 		}
-
 		// Verifica si la compra excedería el límite de huella de carbono de la cuenta
 		double huellaCarbonoTotal = this.calcularHuellaCarbonoTotal() + producto.getHuellaCarbono();
 		if (huellaCarbonoTotal > this.limiteHuellaCarbono) {
 			System.out.println("Esta compra excedería el límite de huella de carbono de tu cuenta");
 			this.operativa = false;
 		}
-
 		// Realiza la compra
 		this.saldo -= producto.getPrecio();
 		this.compras.add(producto);
-		this.transacciones.add(String.format("Compra de %s por %.2f", producto.getNombre(), producto.getPrecio()));
+
+		// Creamos la transaccion
+		Transacciones_CBDC transaccion = new Transacciones_CBDC();
+		transaccion.setId(agregarTransaccion());
+		transaccion.setImporte(producto.getPrecio());
+		transaccion.setProducto(producto);
+		transacciones.add(transaccion);
 		verificarLimite();
 	}
-	
 
 	// Metodo para enviar dinero a otra cuenta
 	public void transferir(double cantidad, Cuenta_bancaria_CBDC cuentaDestino) {
 		if ((this.saldo > 0) && (cantidad < this.saldo) && (this.operativa)) {
 			this.saldo -= cantidad;
 			cuentaDestino.depositar(cantidad);
-			transacciones.add("Se ha retirado " + cantidad + "€ de la cuenta ");
-			agregarTransaccion();
+
+			Transacciones_CBDC transaccion = new Transacciones_CBDC();
+			transaccion.setId(agregarTransaccion());
+			transaccion.setImporte(cantidad);
+			transaccion.setCuenta(cuentaDestino);
+			transacciones.add(transaccion);
+
 		} else {
 			throw new IllegalArgumentException("Saldo insuficiente");
 		}
@@ -279,7 +309,7 @@ public class Cuenta_bancaria_CBDC {
 		String res = "";
 		double huellaCarbonoTotal = 0;
 		for (Producto_CBDC producto : compras) {
-	        huellaCarbonoTotal += producto.getHuellaCarbono();
+			huellaCarbonoTotal += producto.getHuellaCarbono();
 		}
 		if (huellaCarbonoTotal > limiteHuellaCarbono) {
 			this.operativa = false;
@@ -292,13 +322,12 @@ public class Cuenta_bancaria_CBDC {
 
 	// Metodo para obtener la huella de carbono total de la suma de los productos
 	public double calcularHuellaCarbonoTotal() {
-	    double huellaCarbonoTotal = 0;
-	    for (Producto_CBDC producto : compras) {
-	        huellaCarbonoTotal += producto.getHuellaCarbono();
-	    }
-	    return huellaCarbonoTotal;
+		double huellaCarbonoTotal = 0;
+		for (Producto_CBDC producto : compras) {
+			huellaCarbonoTotal += producto.getHuellaCarbono();
+		}
+		return huellaCarbonoTotal;
 	}
-
 
 	// Metodo para generar el numero IBAN a partir del modulo97
 	public String generarNumeroIBAN() {

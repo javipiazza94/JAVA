@@ -8,7 +8,7 @@ public class Uso_CBDC {
 	public static void main(String[] args) {	
 		// Crea dos objetos de la clase Cuenta_corriente_CBDC y el Banco Central
 		Banco_Central_CBDC BCE = new Banco_Central_CBDC();
-		Cuenta_bancaria_CBDC cuenta1 = new Cuenta_bancaria_CBDC("Juan Pérez", 'h', 0);
+		Cuenta_bancaria_CBDC cuenta1 = new Cuenta_bancaria_CBDC("Pedro Varela", 'h', 0);
 		Cuenta_bancaria_CBDC cuenta2 = new Cuenta_bancaria_CBDC("Ana Martínez",'h', 0);
 		Cuenta_bancaria_CBDC cuenta3 = new Cuenta_bancaria_CBDC("Pepe Martínez", 'h', 0);
 		Cuenta_bancaria_CBDC cuenta4 = new Cuenta_bancaria_CBDC("Ana Botieso", 'h', 1500000);
@@ -29,11 +29,9 @@ public class Uso_CBDC {
 		BCE.cambiarLimiteHuellaCarbono(cuenta3, 100);
 		BCE.cambiarOperatividad(cuenta3, false);
 		BCE.establecerTramosIrpfCuenta(cuenta4);
-		BCE.modificarLimiteHuellaPorRenta();
 		BCE.establecerCaducidadDineroenCuenta(fechaActual, cuenta5);
 		BCE.establecerTramosIrpfCuenta(cuenta5);
-		BCE.aplicarPerspectivaDeGenero(10);
-		
+
 		// Muestra información de las cuentas
 		System.out.println(cuenta1.obtenerDatosCuenta()); 
 		System.out.println();
@@ -50,10 +48,6 @@ public class Uso_CBDC {
 		System.out.println("Operaciones:");
 		System.out.println("Tranferencia de la cuenta 1 a la cuenta 2");
 		cuenta1.transferir(500, cuenta2);
-		List<String> transacciones = cuenta1.obtenerTransacciones();
-		for (String id_transaccion : transacciones) {
-			System.out.println("El identificador de la transaccion es: " + id_transaccion);
-		}
 		System.out.println("Compra de un producto de la cuenta 2");
 		Producto_CBDC producto = new Producto_CBDC(2000, 10, "Coche");
 		cuenta2.realizarCompra(producto);
