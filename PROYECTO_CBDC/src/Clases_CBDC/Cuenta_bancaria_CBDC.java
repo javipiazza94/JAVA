@@ -119,6 +119,29 @@ public class Cuenta_bancaria_CBDC {
 	public List<Transacciones_CBDC> obtenerTransacciones() {
 		return this.transacciones;
 	}
+		
+	public String[] obtenerNombreProducto() {
+	    String[] nombreProducto = new String[compras.size()];
+	    for (int i = 0; i < compras.size(); i++) {
+	    	nombreProducto[i] = compras.get(i).getNombre();
+	    }
+	    return nombreProducto;
+	  }
+	public String[] obtenerIdTransacciones() {
+	    String[] idTransacciones = new String[transacciones.size()];
+	    for (int i = 0; i < transacciones.size(); i++) {
+	      idTransacciones[i] = transacciones.get(i).getId();
+	    }
+	    return idTransacciones;
+	  }
+	
+	public String[] obtenerPrecioProducto() {
+	    String[] nombreProducto = new String[compras.size()];
+	    for (int i = 0; i < compras.size(); i++) {
+	    	nombreProducto[i] = String.valueOf(compras.get(i).getPrecio());
+	    }
+	    return nombreProducto;
+	  }
 
 	public double obtenerLimiteHuellaCarbono() {
 		return limiteHuellaCarbono;
@@ -174,10 +197,8 @@ public class Cuenta_bancaria_CBDC {
 
 	public void modificarSaldo(double saldo) {
 		this.saldo = saldo;
-		Transacciones_CBDC transaccion = new Transacciones_CBDC();
-		transaccion.setId(agregarTransaccion());
-		transaccion.setImporte(saldo);
-		transacciones.add(transaccion);
+		agregarTransaccion(saldo);
+		;
 	}
 
 	public void modificarNombreTitular(String nombreTitular) {
@@ -199,10 +220,7 @@ public class Cuenta_bancaria_CBDC {
 	// Metodo para aplicar el tipo de interes a la cuenta
 	public double aplicarTipoInteres() {
 		if (operativa) {
-			Transacciones_CBDC transaccion = new Transacciones_CBDC();
-			transaccion.setId(agregarTransaccion());
-			transaccion.setImporte(this.saldo += this.saldo * (this.tipoInteres / 100));
-			transacciones.add(transaccion);
+			agregarTransaccion(this.saldo += this.saldo * (this.tipoInteres / 100));
 			return this.saldo += this.saldo * (this.tipoInteres / 100);
 		} else {
 			return saldo;
@@ -212,10 +230,6 @@ public class Cuenta_bancaria_CBDC {
 	// Metodo para aplicar IRPF a la cuenta
 	public double aplicarIRPF() {
 		if (operativa) {
-			Transacciones_CBDC transaccion = new Transacciones_CBDC();
-			transaccion.setId(agregarTransaccion());
-			transaccion.setImporte(saldo - IRPF);
-			transacciones.add(transaccion);
 			return this.saldo - this.IRPF;
 		} else {
 			return this.saldo;
@@ -223,10 +237,35 @@ public class Cuenta_bancaria_CBDC {
 	}
 
 	// Metodo para agregar transaccion
-	public String agregarTransaccion() {
+	public String agregarTransaccion(double importe) {
 		Transacciones_CBDC transaccion = new Transacciones_CBDC();
 		String id_transaccion = UUID.randomUUID().toString();
 		transaccion.setId(id_transaccion);
+		transaccion.setImporte(importe);
+		transaccion.setCuenta(this);
+		transacciones.add(transaccion);
+		return id_transaccion;
+	}
+
+	// Metodo para agregar transaccion en el producto
+	public String agregarTransaccionCuenta(Cuenta_bancaria_CBDC CUENTADESTINO, double importe) {
+		Transacciones_CBDC transaccion = new Transacciones_CBDC();
+		String id_transaccion = UUID.randomUUID().toString();
+		transaccion.setId(id_transaccion);
+		transaccion.setImporte(importe);
+		transaccion.setCuenta(CUENTADESTINO);
+		transaccion.setCuenta(this);
+		transacciones.add(transaccion);
+		return id_transaccion;
+	}
+
+	// Metodo para agregar transaccion en el producto
+	public String agregarTransaccionProducto(Producto_CBDC producto, double importe) {
+		Transacciones_CBDC transaccion = new Transacciones_CBDC();
+		String id_transaccion = UUID.randomUUID().toString();
+		transaccion.setId(id_transaccion);
+		transaccion.setImporte(importe);
+		transaccion.setProducto(producto);
 		transaccion.setCuenta(this);
 		transacciones.add(transaccion);
 		return id_transaccion;
@@ -235,11 +274,7 @@ public class Cuenta_bancaria_CBDC {
 	// Método para depositar dinero
 	public void depositar(double cantidad) {
 		this.saldo += cantidad;
-		Transacciones_CBDC transaccion = new Transacciones_CBDC();
-		transaccion.setId(agregarTransaccion());
-		transaccion.setImporte(cantidad);
-		transacciones.add(transaccion);
-
+		agregarTransaccion(cantidad);
 		if (saldo >= 0) {
 			operativa = true;
 		}
@@ -247,10 +282,7 @@ public class Cuenta_bancaria_CBDC {
 
 	public void retirar(double cantidad) {
 		this.saldo -= cantidad;
-		Transacciones_CBDC transaccion = new Transacciones_CBDC();
-		transaccion.setId(agregarTransaccion());
-		transaccion.setImporte(cantidad);
-		transacciones.add(transaccion);
+		agregarTransaccion(cantidad);
 		if (saldo < 0) {
 			operativa = false;
 		}
@@ -278,12 +310,8 @@ public class Cuenta_bancaria_CBDC {
 		this.saldo -= producto.getPrecio();
 		this.compras.add(producto);
 
-		// Creamos la transaccion
-		Transacciones_CBDC transaccion = new Transacciones_CBDC();
-		transaccion.setId(agregarTransaccion());
-		transaccion.setImporte(producto.getPrecio());
-		transaccion.setProducto(producto);
-		transacciones.add(transaccion);
+		// Agrega la transaccion correspondiente a la compra realizada
+		agregarTransaccionProducto(producto, producto.getPrecio());
 		verificarLimite();
 	}
 
@@ -292,12 +320,7 @@ public class Cuenta_bancaria_CBDC {
 		if ((this.saldo > 0) && (cantidad < this.saldo) && (this.operativa)) {
 			this.saldo -= cantidad;
 			cuentaDestino.depositar(cantidad);
-
-			Transacciones_CBDC transaccion = new Transacciones_CBDC();
-			transaccion.setId(agregarTransaccion());
-			transaccion.setImporte(cantidad);
-			transaccion.setCuenta(cuentaDestino);
-			transacciones.add(transaccion);
+			agregarTransaccion(cantidad);
 
 		} else {
 			throw new IllegalArgumentException("Saldo insuficiente");

@@ -8,7 +8,9 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import java.awt.Font;
@@ -23,68 +25,76 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.awt.event.ActionEvent;
 
 public class Cliente_CBDC extends JFrame {
 
 	private static final long serialVersionUID = 5787738098682905747L;
-	
-	public static void comunicarDevolucionPrestamo(Cuenta_bancaria_CBDC modelo, JLabel entrega, JLabel Saldo, Banco_Central_CBDC bce) throws ParseException {
-	    try {
-	        // Crea un socket para conectarse al servidor
-	        Socket socket = new Socket("localhost", 9975);
-	        // Crea un DataInputStream para recibir datos del servidor
-	        DataInputStream input = new DataInputStream(socket.getInputStream());
-	        // Recibe la fecha casteada a String por el servidor
-	        double cantidadEmitida = input.readDouble();
-	        String fechaCaducidadString = input.readUTF();
-	        // Parsea la fecha recibida como una cadena de texto en un objeto Date
-	        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-	        Date fechaCaducidad = df.parse(fechaCaducidadString);
-	        //Aplicamos el prestamo por el banco central
-	        double prestamo = bce.pedirDineroCuenta(modelo, cantidadEmitida, fechaCaducidad);
-	        //Escribimos los resultados
-	        Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
-	        entrega.setText(String.valueOf(bce.prestarDineroCuenta(modelo, cantidadEmitida, fechaCaducidad)-bce.pedirDineroCuenta(modelo, cantidadEmitida, fechaCaducidad)));
-	        // Cierra el socket y el DataInputStream
-	        input.close();
-	        socket.close();
-	    } catch (ConnectException e) {
-	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    } 
-	}
-	
-	public static void comunicarPrestamo(Cuenta_bancaria_CBDC modelo, JLabel entrega, JLabel Saldo, Banco_Central_CBDC bce) throws ParseException {
-	    try {
-	        // Crea un socket para conectarse al servidor
-	        Socket socket = new Socket("localhost", 9976);
-	        // Crea un DataInputStream para recibir datos del servidor
-	        DataInputStream input = new DataInputStream(socket.getInputStream());
-	        // Recibe la fecha casteada a String por el servidor
-	        double cantidadEmitida = input.readDouble();
-	        String fechaCaducidadString = input.readUTF();
-	        // Parsea la fecha recibida como una cadena de texto en un objeto Date
-	        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-	        Date fechaCaducidad = df.parse(fechaCaducidadString);
-	        //Aplicamos el prestamo por el banco central
-	        double prestamo = bce.prestarDineroCuenta(modelo, cantidadEmitida, fechaCaducidad);
-	        //Escribimos los resultados
-	        Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
-	        entrega.setText(String.valueOf(prestamo));
-	        // Cierra el socket y el DataInputStream
-	        input.close();
-	        socket.close();
-	    } catch (ConnectException e) {
-	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    } 
+
+	public static void comunicarDevolucionPrestamo(Cuenta_bancaria_CBDC modelo, JLabel entrega, JLabel Saldo,
+			Banco_Central_CBDC bce) throws ParseException {
+		try {
+			// Crea un socket para conectarse al servidor
+			Socket socket = new Socket("localhost", 9975);
+			// Crea un DataInputStream para recibir datos del servidor
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			// Recibe la fecha casteada a String por el servidor
+			double cantidadEmitida = input.readDouble();
+			String fechaCaducidadString = input.readUTF();
+			// Parsea la fecha recibida como una cadena de texto en un objeto Date
+			DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+			Date fechaCaducidad = df.parse(fechaCaducidadString);
+			// Aplicamos el prestamo por el banco central
+			double prestamo = bce.pedirDineroCuenta(modelo, cantidadEmitida, fechaCaducidad);
+			// Escribimos los resultados
+			Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+			entrega.setText(String.valueOf(bce.prestarDineroCuenta(modelo, cantidadEmitida, fechaCaducidad)
+					- bce.pedirDineroCuenta(modelo, cantidadEmitida, fechaCaducidad)));
+			// Cierra el socket y el DataInputStream
+			input.close();
+			socket.close();
+		} catch (ConnectException e) {
+			System.out.println("Error al conectarse al servidor: " + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public static void comunicarCaducidad(Cuenta_bancaria_CBDC modelo, JLabel caducidad, JLabel Saldo, Banco_Central_CBDC bce) throws ParseException {
+	public static void comunicarPrestamo(Cuenta_bancaria_CBDC modelo, JLabel entrega, JLabel Saldo,
+			Banco_Central_CBDC bce) throws ParseException {
+		try {
+			// Crea un socket para conectarse al servidor
+			Socket socket = new Socket("localhost", 9976);
+			// Crea un DataInputStream para recibir datos del servidor
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			// Recibe la fecha casteada a String por el servidor
+			double cantidadEmitida = input.readDouble();
+			String fechaCaducidadString = input.readUTF();
+			// Parsea la fecha recibida como una cadena de texto en un objeto Date
+			DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+			Date fechaCaducidad = df.parse(fechaCaducidadString);
+			// Aplicamos el prestamo por el banco central
+			double prestamo = bce.prestarDineroCuenta(modelo, cantidadEmitida, fechaCaducidad);
+			// Escribimos los resultados
+			Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+			entrega.setText(String.valueOf(prestamo));
+			// Cierra el socket y el DataInputStream
+			input.close();
+			socket.close();
+		} catch (ConnectException e) {
+			System.out.println("Error al conectarse al servidor: " + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void comunicarCaducidad(Cuenta_bancaria_CBDC modelo, JLabel caducidad, JLabel Saldo,
+			Banco_Central_CBDC bce) throws ParseException {
 		try {
 			// Crea un socket para conectarse al servidor
 			Socket socket = new Socket("localhost", 9982);
@@ -96,21 +106,21 @@ public class Cliente_CBDC extends JFrame {
 			String fechaCaducidad = formato.format(modelo.obtenerCaducidad());
 			// Modificamos fecha
 			modelo.modificarCaducidad(modelo.obtenerCaducidad());
-			//Aplicamos la caducidad al dinero por el banco central
+			// Aplicamos la caducidad al dinero por el banco central
 			bce.establecerCaducidadDineroenCuenta(modelo.obtenerCaducidad(), modelo);
-			//Escribimos los resultados
+			// Escribimos los resultados
 			caducidad.setText(String.valueOf(fecha_caducidad));
 			Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
 			// Cierra el socket y el DataInputStream
 			input.close();
 			socket.close();
 		} catch (ConnectException e) {
-	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
-	    } catch (IOException e) {
+			System.out.println("Error al conectarse al servidor: " + e.getMessage());
+		} catch (IOException e) {
 			e.printStackTrace();
-		} 
+		}
 	}
-	
+
 	public static void comunicarlimiteHuellaCarbono(Cuenta_bancaria_CBDC modelo, JLabel carbono) {
 		try {
 			// Crea un socket para conectarse al servidor
@@ -120,18 +130,19 @@ public class Cliente_CBDC extends JFrame {
 			// Recibe la cantidad de huella permitida por el servidor
 			double cantidadpermitida = input.readDouble();
 			// Modificamos la huella de carbono
-			modelo.modificarLimiteHuellaCarbono(cantidadpermitida);;
+			modelo.modificarLimiteHuellaCarbono(cantidadpermitida);
+			;
 			carbono.setText(String.valueOf(cantidadpermitida));
 			// Cierra el socket y el DataInputStream
 			input.close();
 			socket.close();
 		} catch (ConnectException e) {
-	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
-	    } catch (IOException e) {
+			System.out.println("Error al conectarse al servidor: " + e.getMessage());
+		} catch (IOException e) {
 			e.printStackTrace();
-		} 
+		}
 	}
-	
+
 	public static void comunicarSaldos2(Cuenta_bancaria_CBDC modelo, JLabel Saldo) {
 		try {
 			// Crea un socket para conectarse al servidor
@@ -148,12 +159,12 @@ public class Cliente_CBDC extends JFrame {
 			input.close();
 			socket.close();
 		} catch (ConnectException e) {
-	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
-	    } catch (IOException e) {
+			System.out.println("Error al conectarse al servidor: " + e.getMessage());
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void comunicarSaldos(Cuenta_bancaria_CBDC modelo, JLabel Saldo) {
 		try {
 			// Crea un socket para conectarse al servidor
@@ -170,12 +181,12 @@ public class Cliente_CBDC extends JFrame {
 			input.close();
 			socket.close();
 		} catch (ConnectException e) {
-	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
-	    } catch (IOException e) {
+			System.out.println("Error al conectarse al servidor: " + e.getMessage());
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void comunicarInteres(Cuenta_bancaria_CBDC modelo, JLabel interes, JLabel saldo) {
 		try {
 			// Crea un socket para conectarse al servidor
@@ -193,48 +204,48 @@ public class Cliente_CBDC extends JFrame {
 			input.close();
 			socket.close();
 		} catch (ConnectException e) {
-	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
-	    } catch (IOException e) {
+			System.out.println("Error al conectarse al servidor: " + e.getMessage());
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void comunicarIRPF(Cuenta_bancaria_CBDC modelo, JLabel IRPF,  JLabel saldo) {
+
+	public static void comunicarIRPF(Cuenta_bancaria_CBDC modelo, JLabel IRPF, JLabel saldo) {
 		try {
 			// Crea un socket para conectarse al servidor
 			Socket socket = new Socket("localhost", 9980);
 			// Crea un DataInputStream para recibir datos del servidor
 			DataInputStream input = new DataInputStream(socket.getInputStream());
 			// Recibe la cantidad de dinero emitida por el servidor
-			 double porcentajeIRPF = input.readDouble();
-			 double valorIRPF = modelo.obtenerSaldo() * (porcentajeIRPF / 100);
-		        modelo.retirar(valorIRPF);
-		        IRPF.setText(String.valueOf(porcentajeIRPF));
-		        saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+			double porcentajeIRPF = input.readDouble();
+			double valorIRPF = modelo.obtenerSaldo() * (porcentajeIRPF / 100);
+			modelo.retirar(valorIRPF);
+			IRPF.setText(String.valueOf(porcentajeIRPF));
+			saldo.setText(String.valueOf(modelo.obtenerSaldo()));
 			// Cierra el socket y el DataInputStream
 			input.close();
 			socket.close();
 		} catch (ConnectException e) {
-	        System.out.println("Error al conectarse al servidor: " + e.getMessage());
-	    } catch (IOException e) {
+			System.out.println("Error al conectarse al servidor: " + e.getMessage());
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public String ImprimirOperatividad(Cuenta_bancaria_CBDC Cuentas) {
 		String res = null;
-		if (Cuentas.EsOperativa()==true) {
+		if (Cuentas.EsOperativa() == true) {
 			res = "SÍ";
 		}
-		if (Cuentas.EsOperativa()==false) {
+		if (Cuentas.EsOperativa() == false) {
 			res = "NO";
 		}
-		if(Cuentas.obtenerLimiteHuellaCarbono()<Cuentas.calcularHuellaCarbonoTotal()){
+		if (Cuentas.obtenerLimiteHuellaCarbono() < Cuentas.calcularHuellaCarbonoTotal()) {
 			res = Cuentas.verificarLimite();
 		}
 		return res;
 	}
-	
+
 	public String ImprimirSexo(Cuenta_bancaria_CBDC Cuentas) {
 		String res = null;
 		if (Cuentas.obtenerSexo() == 'h') {
@@ -244,29 +255,32 @@ public class Cliente_CBDC extends JFrame {
 		}
 		return res;
 	}
-	
+
 	public String ImprimirComunitario(Cuenta_bancaria_CBDC Cuentas) {
 		String res = null;
 		if (Cuentas.obtenerComunitario()) {
-			res = "SI";
+			res = "SÍ";
 		} else {
 			res = "NO";
 		}
 		return res;
 	}
-	
+
 	public char ConvertirCadenaALetra(String s) {
-	    return s.charAt(0);
+		return s.charAt(0);
 	}
-	
+
 	private JPanel milamina;
 	JLabel Saldo, IBAN, Cliente_label, nombre, DNI_label, dni, labelBanco, saldoLabel, labelNumeroDeCuenta,
-			labelhuellaCarbono, carbono, labelTipoDeInteres, interes, labelOperatividad, booleano_operativa, lblSexoDelCliente,
-			Sexo, label_comunitario, comunitario, labelIRPF, IRPF, labelCaducidad, caducidad, label_prestamo, deuda;
+			labelhuellaCarbono, carbono, labelTipoDeInteres, interes, labelOperatividad, booleano_operativa,
+			lblSexoDelCliente, Sexo, label_comunitario, comunitario, labelIRPF, IRPF, labelCaducidad, caducidad,
+			label_prestamo, deuda, labelProducto, labelImporte, IdTransaccion;
 	private JTextField ingresar_cantidad, gastar_cantidad;
 	private Banco_Central_CBDC BCE;
 	private ArrayList<Cuenta_bancaria_CBDC> Cuentas;
 	private Cuenta_bancaria_CBDC modelo;
+	private List<Transacciones_CBDC> compras = new ArrayList<>();
+
 	/**
 	 * Launch the application.
 	 */
@@ -283,22 +297,25 @@ public class Cliente_CBDC extends JFrame {
 		});
 
 	}
+
 	/**
 	 * Create the frame.
 	 */
 	public Cliente_CBDC() {
-		
+
 		// INSTANCIAMOS EL BANCO CENTRAL Y LAS CUENTAS
 		BCE = new Banco_Central_CBDC();
 		String nombre_cuenta = JOptionPane.showInputDialog("Introduce el nombre del beneficiario de la cuenta");
-		String sexito = JOptionPane.showInputDialog("Introduce el sexo del beneficiario de la cuenta con las letras H o M");
+		String sexito = JOptionPane
+				.showInputDialog("Introduce el sexo del beneficiario de la cuenta con las letras H o M");
 		char sexo = ConvertirCadenaALetra(sexito);
 		double saldo_inicial = Integer.parseInt(JOptionPane.showInputDialog("Introduce el saldo inicial de la cuenta"));
 		modelo = new Cuenta_bancaria_CBDC(nombre_cuenta, sexo, saldo_inicial);
 
+
 		// CREAMOS LAS DIMENSIONES DEL FRAME
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(300, 150, 750, 450);
+		setBounds(300, 150, 800, 450);
 		setTitle("Cuenta Bancaria CBDC");
 		setResizable(false);
 
@@ -308,15 +325,13 @@ public class Cliente_CBDC extends JFrame {
 		setContentPane(milamina);
 		milamina.setBackground(new Color(192, 192, 192));
 		Toolkit pantalla = Toolkit.getDefaultToolkit();
-		Image imagen = pantalla.getImage(
-				".\\src\\IMAGENES\\euro.png");
+		Image imagen = pantalla.getImage(".\\src\\IMAGENES\\euro.png");
 		setIconImage(imagen);
 		setBackground(SystemColor.window);
 
 		// LOS LABELS
 		labelBanco = new JLabel("");
-		labelBanco.setIcon(new ImageIcon(
-				".\\src\\IMAGENES\\BANCO EURO.png"));
+		labelBanco.setIcon(new ImageIcon(".\\src\\IMAGENES\\BANCO EURO.png"));
 		labelBanco.setBounds(10, 11, 230, 115);
 		milamina.add(labelBanco);
 
@@ -434,7 +449,7 @@ public class Cliente_CBDC extends JFrame {
 		comunitario = new JLabel();
 		comunitario.setHorizontalAlignment(SwingConstants.LEFT);
 		comunitario.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
-		comunitario.setBounds(122, 304, 118, 31);
+		comunitario.setBounds(132, 304, 118, 31);
 		milamina.add(comunitario);
 		comunitario.setText(ImprimirComunitario(modelo));
 
@@ -450,13 +465,13 @@ public class Cliente_CBDC extends JFrame {
 		IRPF.setBounds(186, 329, 106, 31);
 		milamina.add(IRPF);
 		IRPF.setText(String.valueOf(modelo.aplicarIRPF()));
-		
+
 		labelCaducidad = new JLabel("Caducidad:");
 		labelCaducidad.setHorizontalAlignment(SwingConstants.LEFT);
 		labelCaducidad.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
 		labelCaducidad.setBounds(10, 229, 104, 31);
 		milamina.add(labelCaducidad);
-		
+
 		caducidad = new JLabel((String) null);
 		caducidad.setHorizontalAlignment(SwingConstants.LEFT);
 		caducidad.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
@@ -465,18 +480,36 @@ public class Cliente_CBDC extends JFrame {
 		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
 		String fechaCaducidad = formato.format(modelo.obtenerCaducidad());
 		caducidad.setText(fechaCaducidad);
-		
+
 		label_prestamo = new JLabel("Deudas contraidas:");
 		label_prestamo.setHorizontalAlignment(SwingConstants.LEFT);
 		label_prestamo.setFont(new Font("Dialog", Font.BOLD, 18));
 		label_prestamo.setBounds(10, 356, 173, 31);
 		milamina.add(label_prestamo);
-		
+
 		deuda = new JLabel("0.0");
 		deuda.setHorizontalAlignment(SwingConstants.LEFT);
 		deuda.setFont(new Font("Dialog", Font.BOLD, 18));
 		deuda.setBounds(186, 356, 106, 31);
 		milamina.add(deuda);
+		
+		labelProducto = new JLabel("PRODUCTO");
+		labelProducto.setHorizontalAlignment(SwingConstants.LEFT);
+		labelProducto.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
+		labelProducto.setBounds(290, 179, 173, 31);
+		milamina.add(labelProducto);
+		
+		labelImporte = new JLabel("IMPORTE");
+		labelImporte.setHorizontalAlignment(SwingConstants.LEFT);
+		labelImporte.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
+		labelImporte.setBounds(435, 179, 173, 31);
+		milamina.add(labelImporte);
+		
+		IdTransaccion = new JLabel("ID_TRANSACCION");
+		IdTransaccion.setHorizontalAlignment(SwingConstants.LEFT);
+		IdTransaccion.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
+		IdTransaccion.setBounds(555, 179, 173, 31);
+		milamina.add(IdTransaccion);
 
 		// LOS TEXFIELDS
 		gastar_cantidad = new JTextField();
@@ -539,7 +572,45 @@ public class Cliente_CBDC extends JFrame {
 			}
 		});
 		actualizarSaldo.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
-		actualizarSaldo.setBounds(483, 137, 150, 31);
+		actualizarSaldo.setBounds(283, 137, 150, 31);
 		milamina.add(actualizarSaldo);
+		
+		String[] idTransacciones = modelo.obtenerIdTransacciones();
+		String[] NombreProductoCBDC = modelo.obtenerIdTransacciones();
+		String[] ImporteProductoCBDC = modelo.obtenerIdTransacciones();
+		JList<String> listaProductos = new JList<>(NombreProductoCBDC);
+		JList<String> listaTransacciones = new JList<>(idTransacciones);
+		JList<String> listaImporte = new JList<>(ImporteProductoCBDC);
+		
+		
+		JButton botonAnadir = new JButton("Añadir Producto");
+		botonAnadir.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		    	String nombreProducto = JOptionPane.showInputDialog("Introduce el nombre del producto");
+		    	double HuellaProducto = Integer.parseInt(JOptionPane.showInputDialog("Introduce la huella del producto"));
+		    	double ImporteProducto = Integer.parseInt(JOptionPane.showInputDialog("Introduce el importe total"));
+		    	Producto_CBDC producto = new Producto_CBDC(ImporteProducto, HuellaProducto, nombreProducto);
+		    	modelo.realizarCompra(producto);
+		    	Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+		    	
+		    	   // Actualiza los datos de las JList
+		        listaProductos.setListData(modelo.obtenerNombreProducto());
+		        listaTransacciones.setListData(modelo.obtenerIdTransacciones());
+		        listaImporte.setListData(modelo.obtenerPrecioProducto());
+		    }
+		});
+
+		botonAnadir.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
+		botonAnadir.setBounds(483, 137, 150, 31);
+		milamina.add(botonAnadir);
+		
+		//LISTAS
+		listaTransacciones.setBounds(545, 210, 200, 200);
+		milamina.add(listaTransacciones);
+		listaProductos.setBounds(275, 210, 150, 200);
+		milamina.add(listaProductos);
+		listaImporte.setBounds(435, 210, 100, 200);
+		milamina.add(listaImporte);	
 	}
+
 }

@@ -198,7 +198,7 @@ public class Banco_Central_CBDC {
 		if (cuenta.EsOperativa() == true && cuenta.obtenerSaldo() >= 0 && cantidad > 0
 				&& plazoEntrega.before(cuenta.obtenerCaducidad())) {
 			cuenta.depositar(cantidad);
-			cuenta.agregarTransaccion();
+			cuenta.agregarTransaccion(cantidad);
 			cuenta.modificarEsPrestado(true);
 		}
 		return cantidad;
@@ -209,7 +209,7 @@ public class Banco_Central_CBDC {
 		Date actualdate = new Date();
 		if ((plazoEntrega.equals(actualdate) || plazoEntrega.before(actualdate)) && cuenta.obtenerEsPrestado()==true ) {
 			cuenta.retirar(cantidad + (cantidad * (this.interes / 100)));
-			cuenta.agregarTransaccion();
+			cuenta.agregarTransaccion(cantidad);
 		}
 		return cantidad + (cantidad * (this.interes / 100)) ;
 	}

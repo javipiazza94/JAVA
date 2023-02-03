@@ -20,6 +20,20 @@ public class Transacciones_CBDC {
 		this.producto = producto;
 		this.cuenta = cuenta;
 	}
+	public Transacciones_CBDC(String id, double importe, Producto_CBDC producto,
+			Cuenta_bancaria_CBDC cuenta) {
+		this.id = id;
+		this.importe = importe;
+		this.producto = producto;
+		this.cuenta = cuenta;
+	}
+	
+	public Transacciones_CBDC(String id, double importe,
+			Cuenta_bancaria_CBDC cuenta) {
+		this.id = id;
+		this.importe = importe;
+		this.cuenta = cuenta;
+	}
 
 	public String getId() {
 		return id;
@@ -67,6 +81,8 @@ public class Transacciones_CBDC {
 				+ ", cuenta=" + cuenta + "]";
 	}
 	
-	
+	public String toString2() {
+	    return producto.getNombre() + " - euros" + importe + " - ID: " + id;
+	}
 
 }
