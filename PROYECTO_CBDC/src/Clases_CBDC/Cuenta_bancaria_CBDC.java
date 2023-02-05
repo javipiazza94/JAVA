@@ -120,6 +120,7 @@ public class Cuenta_bancaria_CBDC {
 		return this.transacciones;
 	}
 		
+	//Para imprimir el nombre del produco en las listas de las compras
 	public String[] obtenerNombreProducto() {
 	    String[] nombreProducto = new String[compras.size()];
 	    for (int i = 0; i < compras.size(); i++) {
@@ -127,6 +128,8 @@ public class Cuenta_bancaria_CBDC {
 	    }
 	    return nombreProducto;
 	  }
+	
+	//Para imprimir las transacciones en las listas
 	public String[] obtenerIdTransacciones() {
 	    String[] idTransacciones = new String[transacciones.size()];
 	    for (int i = 0; i < transacciones.size(); i++) {
@@ -135,12 +138,13 @@ public class Cuenta_bancaria_CBDC {
 	    return idTransacciones;
 	  }
 	
+	//Para imprimir los importes de los productos en las listas
 	public String[] obtenerPrecioProducto() {
-	    String[] nombreProducto = new String[compras.size()];
+	    String[] precioProducto = new String[compras.size()];
 	    for (int i = 0; i < compras.size(); i++) {
-	    	nombreProducto[i] = String.valueOf(compras.get(i).getPrecio());
+	    	precioProducto[i] = String.valueOf(compras.get(i).getPrecio());
 	    }
-	    return nombreProducto;
+	    return precioProducto;
 	  }
 
 	public double obtenerLimiteHuellaCarbono() {
