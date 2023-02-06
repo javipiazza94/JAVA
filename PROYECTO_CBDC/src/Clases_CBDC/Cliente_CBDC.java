@@ -36,6 +36,52 @@ import java.awt.event.ActionEvent;
 public class Cliente_CBDC extends JFrame {
 
 	private static final long serialVersionUID = 5787738098682905747L;
+	
+	public static void comunicarOperatividadFalse(Cuenta_bancaria_CBDC modelo, JLabel falso,
+			Banco_Central_CBDC bce) throws ParseException {
+		try {
+			// Crea un socket para conectarse al servidor
+			Socket socket = new Socket("localhost", 9984);
+			// Crea un DataInputStream para recibir datos del servidor
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			// Recibe la fecha casteada a String por el servidor
+			boolean operatividad = input.readBoolean();
+			bce.cambiarOperatividad(modelo, operatividad);
+			// Escribimos los resultados
+			String resultado = Cliente_CBDC.ImprimirOperatividad(modelo);
+			falso.setText(resultado);
+			// Cierra el socket y el DataInputStream
+			input.close();
+			socket.close();
+		} catch (ConnectException e) {
+			System.out.println("Error al conectarse al servidor: " + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void comunicarOperatividadTrue(Cuenta_bancaria_CBDC modelo, JLabel verdadero,
+			Banco_Central_CBDC bce) throws ParseException {
+		try {
+			// Crea un socket para conectarse al servidor
+			Socket socket = new Socket("localhost", 9983);
+			// Crea un DataInputStream para recibir datos del servidor
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			// Recibe la fecha casteada a String por el servidor
+			boolean operatividad = input.readBoolean();
+			bce.cambiarOperatividad(modelo, operatividad);
+			// Escribimos los resultados
+			String resultado = Cliente_CBDC.ImprimirOperatividad(modelo);
+			verdadero.setText(resultado);
+			// Cierra el socket y el DataInputStream
+			input.close();
+			socket.close();
+		} catch (ConnectException e) {
+			System.out.println("Error al conectarse al servidor: " + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static void comunicarDevolucionPrestamo(Cuenta_bancaria_CBDC modelo, JLabel entrega, JLabel Saldo,
 			Banco_Central_CBDC bce) throws ParseException {
@@ -166,7 +212,7 @@ public class Cliente_CBDC extends JFrame {
 		}
 	}
 
-	public static void comunicarSaldos(Cuenta_bancaria_CBDC modelo, JLabel Saldo) {		
+	public static void comunicarSaldos(Cuenta_bancaria_CBDC modelo, JLabel Saldo) {
 		try {
 			// Crea un socket para conectarse al servidor
 			Socket socket = new Socket("localhost", 9978);
@@ -233,7 +279,7 @@ public class Cliente_CBDC extends JFrame {
 		}
 	}
 
-	public String ImprimirOperatividad(Cuenta_bancaria_CBDC Cuentas) {
+	public static String ImprimirOperatividad(Cuenta_bancaria_CBDC Cuentas) {
 		String res = null;
 		if (Cuentas.EsOperativa() == true) {
 			res = "SÍ";
@@ -242,7 +288,7 @@ public class Cliente_CBDC extends JFrame {
 			res = "NO";
 		}
 		if (Cuentas.obtenerLimiteHuellaCarbono() < Cuentas.calcularHuellaCarbonoTotal()) {
-			res = Cuentas.verificarLimite();
+			res = "NO";
 		}
 		return res;
 	}
@@ -280,6 +326,7 @@ public class Cliente_CBDC extends JFrame {
 	private Banco_Central_CBDC BCE;
 	private ArrayList<Cuenta_bancaria_CBDC> Cuentas;
 	private Cuenta_bancaria_CBDC modelo;
+
 	/**
 	 * Launch the application.
 	 */
@@ -296,9 +343,11 @@ public class Cliente_CBDC extends JFrame {
 		});
 
 	}
+
 	/**
 	 * Create the frame.
 	 */
+
 	public Cliente_CBDC() {
 
 		// INSTANCIAMOS EL BANCO CENTRAL Y LAS CUENTAS
@@ -310,14 +359,14 @@ public class Cliente_CBDC extends JFrame {
 		double saldo_inicial = Integer.parseInt(JOptionPane.showInputDialog("Introduce el saldo inicial de la cuenta"));
 		modelo = new Cuenta_bancaria_CBDC(nombre_cuenta, sexo, saldo_inicial);
 
-		//CREAMOS LAS LISTAS
+		// CREAMOS LAS LISTAS
 		String[] idTransacciones = modelo.obtenerIdTransacciones();
 		String[] NombreProductoCBDC = modelo.obtenerIdTransacciones();
 		String[] ImporteProductoCBDC = modelo.obtenerIdTransacciones();
 		JList<String> listaProductos = new JList<>(NombreProductoCBDC);
 		JList<String> listaTransacciones = new JList<>(idTransacciones);
 		JList<String> listaImporte = new JList<>(ImporteProductoCBDC);
-		
+
 		// CREAMOS LAS DIMENSIONES DEL FRAME
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(300, 150, 800, 450);
@@ -404,7 +453,7 @@ public class Cliente_CBDC extends JFrame {
 		carbono.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
 		carbono.setBounds(186, 179, 118, 31);
 		milamina.add(carbono);
-		carbono.setText(String.valueOf(modelo.calcularHuellaCarbonoTotal()));
+		carbono.setText(String.valueOf(modelo.obtenerLimiteHuellaCarbono()));
 
 		labelTipoDeInteres = new JLabel("Tipo de interes:");
 		labelTipoDeInteres.setHorizontalAlignment(SwingConstants.LEFT);
@@ -497,19 +546,19 @@ public class Cliente_CBDC extends JFrame {
 		deuda.setFont(new Font("Dialog", Font.BOLD, 18));
 		deuda.setBounds(186, 356, 106, 31);
 		milamina.add(deuda);
-		
+
 		labelProducto = new JLabel("PRODUCTO");
 		labelProducto.setHorizontalAlignment(SwingConstants.LEFT);
 		labelProducto.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
 		labelProducto.setBounds(305, 179, 173, 31);
 		milamina.add(labelProducto);
-		
+
 		labelImporte = new JLabel("IMPORTE");
 		labelImporte.setHorizontalAlignment(SwingConstants.LEFT);
 		labelImporte.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
 		labelImporte.setBounds(445, 179, 173, 31);
 		milamina.add(labelImporte);
-		
+
 		IdTransaccion = new JLabel("ID_TRANSACCION");
 		IdTransaccion.setHorizontalAlignment(SwingConstants.LEFT);
 		IdTransaccion.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
@@ -537,31 +586,31 @@ public class Cliente_CBDC extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				double numero = Double.parseDouble(ingresar_cantidad.getText().toString());
 				String nombreProducto = "Ingreso";
-		    	
-		    	//Modificamos los saldos y campos
+
+				// Modificamos los saldos y campos
 				modelo.depositar(numero);
 				Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
 				booleano_operativa.setText(ImprimirOperatividad(modelo));
-				
+
 				// Creamos una lista temporal
-		        List<String> listaProductosTemporal = new ArrayList<>();
-		        for (int i = 0; i < listaProductos.getModel().getSize(); i++) {
-		            listaProductosTemporal.add(listaProductos.getModel().getElementAt(i));
-		        }
+				List<String> listaProductosTemporal = new ArrayList<>();
+				for (int i = 0; i < listaProductos.getModel().getSize(); i++) {
+					listaProductosTemporal.add(listaProductos.getModel().getElementAt(i));
+				}
 
-		        List<String> listaImporteTemporal = new ArrayList<>();
-		        for (int i = 0; i < listaImporte.getModel().getSize(); i++) {
-		            listaImporteTemporal.add(listaImporte.getModel().getElementAt(i));
-		        }
+				List<String> listaImporteTemporal = new ArrayList<>();
+				for (int i = 0; i < listaImporte.getModel().getSize(); i++) {
+					listaImporteTemporal.add(listaImporte.getModel().getElementAt(i));
+				}
 
-		        // Agrega los datos a las listas temporales
-		        listaProductosTemporal.add(nombreProducto);
-		        listaImporteTemporal.add(String.valueOf(numero));
+				// Agrega los datos a las listas temporales
+				listaProductosTemporal.add(nombreProducto);
+				listaImporteTemporal.add(String.valueOf(numero));
 
-		        // Actualiza los datos de las JList
-		        listaProductos.setListData(listaProductosTemporal.toArray(new String[listaProductosTemporal.size()]));
-		        listaTransacciones.setListData(modelo.obtenerIdTransacciones());
-		        listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()]));
+				// Actualiza los datos de las JList
+				listaProductos.setListData(listaProductosTemporal.toArray(new String[listaProductosTemporal.size()]));
+				listaTransacciones.setListData(modelo.obtenerIdTransacciones());
+				listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()]));
 			}
 		});
 		ingresar_boton.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
@@ -570,35 +619,46 @@ public class Cliente_CBDC extends JFrame {
 
 		JButton gastar_boton = new JButton("RETIRAR");
 		gastar_boton.addActionListener(new ActionListener() {
-		    public void actionPerformed(ActionEvent e) {
-		        double numero = Double.parseDouble(gastar_cantidad.getText().toString());
-		        String nombreProducto = "Retirada de efectivo";
+			public void actionPerformed(ActionEvent e) {
+				if (modelo.EsOperativa() && modelo.obtenerSaldo() > 0) {
+					double numero = Double.parseDouble(gastar_cantidad.getText().toString());
+					String nombreProducto = "Retirada de efectivo";
 
-		        //Retiramos el dinero
-		        modelo.retirar(numero);
-		        Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
-		        booleano_operativa.setText(ImprimirOperatividad(modelo));
+					// Retiramos el dinero
+					if (modelo.validarRetiros(numero) == true) {
+						modelo.retirar(numero);
+						Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+						booleano_operativa.setText(ImprimirOperatividad(modelo));
 
-		        // Crea una lista temporal
-		        List<String> listaProductosTemporal = new ArrayList<>();
-		        for (int i = 0; i < listaProductos.getModel().getSize(); i++) {
-		            listaProductosTemporal.add(listaProductos.getModel().getElementAt(i));
-		        }
+						// Crea una lista temporal
+						List<String> listaProductosTemporal = new ArrayList<>();
+						for (int i = 0; i < listaProductos.getModel().getSize(); i++) {
+							listaProductosTemporal.add(listaProductos.getModel().getElementAt(i));
+						}
 
-		        List<String> listaImporteTemporal = new ArrayList<>();
-		        for (int i = 0; i < listaImporte.getModel().getSize(); i++) {
-		            listaImporteTemporal.add(listaImporte.getModel().getElementAt(i));
-		        }
+						List<String> listaImporteTemporal = new ArrayList<>();
+						for (int i = 0; i < listaImporte.getModel().getSize(); i++) {
+							listaImporteTemporal.add(listaImporte.getModel().getElementAt(i));
+						}
 
-		        // Agrega los datos a las listas temporales
-		        listaProductosTemporal.add(nombreProducto);
-		        listaImporteTemporal.add(String.valueOf(-numero));
+						// Agrega los datos a las listas temporales
+						listaProductosTemporal.add(nombreProducto);
+						listaImporteTemporal.add(String.valueOf(-numero));
 
-		        // Actualiza los datos de las JList
-		        listaProductos.setListData(listaProductosTemporal.toArray(new String[listaProductosTemporal.size()]));
-		        listaTransacciones.setListData(modelo.obtenerIdTransacciones());
-		        listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()]));
-		    }
+						// Actualiza los datos de las JList
+						listaProductos
+								.setListData(listaProductosTemporal.toArray(new String[listaProductosTemporal.size()]));
+						listaTransacciones.setListData(modelo.obtenerIdTransacciones());
+						listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()]));
+					} else {
+						JOptionPane.showMessageDialog(null,
+								"La operación no es posible porque no tiene suficiente saldo", "Advertencia",
+								JOptionPane.WARNING_MESSAGE);
+					}
+				} else {
+					modelo.mensajeOperatividad();
+				}
+			}
 		});
 		gastar_boton.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
 		gastar_boton.setBounds(484, 95, 118, 31);
@@ -612,10 +672,13 @@ public class Cliente_CBDC extends JFrame {
 				comunicarInteres(modelo, interes, Saldo);
 				comunicarIRPF(modelo, IRPF, Saldo);
 				comunicarlimiteHuellaCarbono(modelo, carbono);
+				
 				try {
 					comunicarCaducidad(modelo, caducidad, Saldo, BCE);
 					comunicarPrestamo(modelo, deuda, Saldo, BCE);
 					comunicarDevolucionPrestamo(modelo, deuda, Saldo, BCE);
+					comunicarOperatividadFalse(modelo, booleano_operativa, BCE);
+					comunicarOperatividadTrue(modelo, booleano_operativa, BCE);
 				} catch (ParseException e1) {
 					System.out.println(e1.getMessage());
 				}
@@ -625,46 +688,63 @@ public class Cliente_CBDC extends JFrame {
 		actualizarSaldo.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
 		actualizarSaldo.setBounds(283, 137, 150, 31);
 		milamina.add(actualizarSaldo);
-			
+
 		JButton botonAnadir = new JButton("Añadir Producto");
 		botonAnadir.addActionListener(new ActionListener() {
-		    public void actionPerformed(ActionEvent e) {
-		    	//Metemos mediante interfaz los datos del producto 
-		    	String nombreProducto = JOptionPane.showInputDialog("Introduce el nombre del producto");
-		    	double HuellaProducto = Integer.parseInt(JOptionPane.showInputDialog("Introduce la huella del producto"));
-		    	double ImporteProducto = Integer.parseInt(JOptionPane.showInputDialog("Introduce el importe total"));
-		    	Producto_CBDC producto = new Producto_CBDC(ImporteProducto, HuellaProducto, nombreProducto);
-		    	
-		    	//Realizamos la compra y actualizamos labels
-		    	modelo.realizarCompra(producto);
-		    	Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
-		    	
-		    	//Creamos una lista temporal para almacenar el importe negativo
-		    	 List<String> listaImporteTemporal = new ArrayList<>();
-			        for (int i = 0; i < listaImporte.getModel().getSize(); i++) {
-			            listaImporteTemporal.add(listaImporte.getModel().getElementAt(i));
-			        }
+			public void actionPerformed(ActionEvent e) {
+				if (modelo.EsOperativa() && modelo.obtenerSaldo() > 0) {
+					// Metemos mediante interfaz los datos del producto
+					String nombreProducto = JOptionPane.showInputDialog("Introduce el nombre del producto");
+					double HuellaProducto = Integer
+							.parseInt(JOptionPane.showInputDialog("Introduce la huella del producto"));
+					double ImporteProducto = Integer
+							.parseInt(JOptionPane.showInputDialog("Introduce el importe total"));
+					Producto_CBDC producto = new Producto_CBDC(ImporteProducto, HuellaProducto, nombreProducto);
 
-			        // Agrega los datos a las listas temporales		     
-			        listaImporteTemporal.add(String.valueOf(-ImporteProducto));
+					// Realizamos la compra y actualizamos labels
+					if ((modelo.calcularHuellaCarbonoTotal() + HuellaProducto )<modelo.obtenerLimiteHuellaCarbono()) {
+						modelo.realizarCompra(producto);
+						Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
 
-		    	   // Actualiza los datos de las JList
-		        listaProductos.setListData(modelo.obtenerNombreProducto());
-		        listaTransacciones.setListData(modelo.obtenerIdTransacciones());
-		        listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()])); //Lo hacemos asi para que imprima el signo de menos
-		    }
+						// Creamos una lista temporal para almacenar el importe negativo
+						List<String> listaImporteTemporal = new ArrayList<>();
+						for (int i = 0; i < listaImporte.getModel().getSize(); i++) {
+							listaImporteTemporal.add(listaImporte.getModel().getElementAt(i));
+						}
+
+						// Agrega los datos a las listas temporales
+						listaImporteTemporal.add(String.valueOf(-ImporteProducto));
+
+						// Actualiza los datos de las JList
+						listaProductos.setListData(modelo.obtenerNombreProducto());
+						listaTransacciones.setListData(modelo.obtenerIdTransacciones());
+						listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()])); // Lo hacemos asi para que imprima el numero en negativo
+					}
+					else {
+						JOptionPane.showMessageDialog(null,
+								"Greta Thunberg te informa que la operación no es posible porque te has pasado en tu huella de carbono", "Advertencia",
+								JOptionPane.WARNING_MESSAGE);
+						modelo.modificarOperativa(false);
+						booleano_operativa.setText(ImprimirOperatividad(modelo));
+					}
+				} else {
+					modelo.mensajeOperatividad();
+					modelo.modificarOperativa(false);
+					booleano_operativa.setText(ImprimirOperatividad(modelo));				
+				}
+			}
 		});
 		botonAnadir.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
 		botonAnadir.setBounds(483, 137, 150, 31);
 		milamina.add(botonAnadir);
-		
-		//LISTAS
+
+		// LISTAS
 		listaTransacciones.setBounds(545, 210, 220, 190);
 		milamina.add(listaTransacciones);
 		listaProductos.setBounds(275, 210, 150, 190);
 		milamina.add(listaProductos);
 		listaImporte.setBounds(435, 210, 100, 190);
-		milamina.add(listaImporte);	
+		milamina.add(listaImporte);
 	}
 
 }

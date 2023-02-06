@@ -8,12 +8,34 @@ public class Banco_Central_CBDC {
 
 	private double interes;
 	private List<Cuenta_bancaria_CBDC> cuentasTotales;
+	private double coeficiente_caja;
+	private double dineroEnCirculacion;
 
 	// Constructor
 	public Banco_Central_CBDC() {
 		this.interes = 0;
+		this.coeficiente_caja = 0;
 		this.cuentasTotales = new ArrayList<>();
+		this.dineroEnCirculacion = 0;
 	}
+	
+
+	public double obtenerDineroEnCirculacion() {
+		return dineroEnCirculacion;
+	}
+
+	public void modificarDineroEnCirculacion(double dineroEnCirculacion) {
+		this.dineroEnCirculacion = dineroEnCirculacion;
+	}
+
+	public double obtenerCoeficiente_caja() {
+		return coeficiente_caja;
+	}
+
+	public void modificarCoeficiente_caja(double coeficiente_caja) {
+		this.coeficiente_caja = coeficiente_caja;
+	}
+
 
 	// Obtenemos el interes
 	public double obtenerInteres() {

@@ -11,13 +11,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.swing.JOptionPane;
+
 public class Cuenta_bancaria_CBDC {
 
 	// Atributos de la clase
 	private String numeroCuenta, numeroIBAN, nombreTitular, DNI;
 	private char sexo;
 	private boolean comunitario, esPrestado, operativa;
-	private double saldo, IRPF, tipoInteres, limiteHuellaCarbono, huellaCarbonoTotal;
+	private double saldo, IRPF, tipoInteres, limiteHuellaCarbono;
 	private Date caducidad;
 	private List<Transacciones_CBDC> transacciones;
 	private List<Producto_CBDC> compras;
@@ -66,7 +68,7 @@ public class Cuenta_bancaria_CBDC {
 				+ comunitario + "\r\n" + " La caducidad del dinero es : " + caducidad + "\r\n"
 				+ " El DNI del titular es: " + DNI + "\r\n" + " El saldo es: " + this.saldo + "\r\n"
 				+ " La transacciones son: " + transacciones.toString() + "\r\n" + " Los productos adquiridos son: "
-				+ compras.toString() + "\r\n" + " La huella de carbono consumida es: " + huellaCarbonoTotal + "\r\n"
+				+ compras.toString() + "\r\n" + " La huella de carbono consumida es: " + obtenerLimiteHuellaCarbono() + "\r\n"
 				+ " El limite de huella de carbono es : " + limiteHuellaCarbono + "\r\n" + " La operatividad es "
 				+ operativa + "\r\n" + " El tipo de interes es: " + tipoInteres + " por ciento\r\n"
 				+ " Lo pagado en impuestos por IPRF es: " + IRPF + " \r\n"
@@ -74,14 +76,6 @@ public class Cuenta_bancaria_CBDC {
 				+ aplicarTipoInteres() + "\r\n" + " El porcentaje pagado en impuestos es: "
 				+ calcularPorcentajeAplicadoIRPF() + "\r\n" + " El saldo de la cuenta con el IRPF aplicado es: "
 				+ aplicarIRPF() + "\r\n" + " " + verificarLimite();
-	}
-
-	public double obtenerHuellaCarbonoTotal() {
-		return huellaCarbonoTotal;
-	}
-
-	public void modificarHuellaCarbonoTotal(double huellaCarbonoTotal) {
-		this.huellaCarbonoTotal = huellaCarbonoTotal;
 	}
 
 	public Date obtenerCaducidad() {
@@ -217,9 +211,16 @@ public class Cuenta_bancaria_CBDC {
 		this.limiteHuellaCarbono = limiteHuellaCarbono;
 	}
 
-	public boolean EsOperativa() {
+	public boolean EsOperativa(){
 		return operativa;
 	}
+	
+	public void mensajeOperatividad(){
+		   if (EsOperativa() == false) {
+		       JOptionPane.showMessageDialog(null, "La operación no es posible", "Advertencia", JOptionPane.WARNING_MESSAGE);
+		   }
+		}
+
 
 	// Metodo para aplicar el tipo de interes a la cuenta
 	public double aplicarTipoInteres() {
@@ -284,6 +285,7 @@ public class Cuenta_bancaria_CBDC {
 		}
 	}
 
+	//Retiramos dinero
 	public void retirar(double cantidad) {
 		this.saldo -= cantidad;
 		agregarTransaccion(cantidad);
@@ -291,23 +293,31 @@ public class Cuenta_bancaria_CBDC {
 			operativa = false;
 		}
 	}
+	
+	//Validamos retiros
+	public boolean validarRetiros(double cantidad) {
+		if (cantidad<this.saldo) {
+			return true;
+		}else {
+			return false;
+		}
+	}
 
 	// Método para comprar
 	public void realizarCompra(Producto_CBDC producto) {
 		// Verifica si la cuenta está operativa
-		String res = "";
 		if (!this.operativa) {
-			res = "La cuenta no está operativa";
+			 JOptionPane.showMessageDialog(null, "La operación no es posible", "Advertencia", JOptionPane.WARNING_MESSAGE);
 		}
 		// Verifica si la cuenta tiene suficiente saldo para realizar la compra
 		if (this.saldo < producto.getPrecio()) {
 			this.operativa = false;
-			res = "No tienes suficiente saldo para realizar esta compra";
+			 JOptionPane.showMessageDialog(null, "La operación no es posible", "Advertencia", JOptionPane.WARNING_MESSAGE);
 		}
 		// Verifica si la compra excedería el límite de huella de carbono de la cuenta
 		double huellaCarbonoTotal = this.calcularHuellaCarbonoTotal() + producto.getHuellaCarbono();
 		if (huellaCarbonoTotal > this.limiteHuellaCarbono) {
-			System.out.println("Esta compra excedería el límite de huella de carbono de tu cuenta");
+			 JOptionPane.showMessageDialog(null, "Esta compra no es posible por exceso de límite de huella de carbono de tu cuenta", "Advertencia", JOptionPane.WARNING_MESSAGE);
 			this.operativa = false;
 		}
 		// Realiza la compra
@@ -340,7 +350,7 @@ public class Cuenta_bancaria_CBDC {
 		}
 		if (huellaCarbonoTotal > limiteHuellaCarbono) {
 			this.operativa = false;
-			res = "Se ha excedido el límite de huella de carbono. La cuenta se ha vuelto inoperable.";
+			 JOptionPane.showMessageDialog(null, "Esta cuenta es inoperable por exceso de límite de huella de carbono", "Advertencia", JOptionPane.WARNING_MESSAGE);
 		} else {
 			res = "La cuenta es operable.";
 		}

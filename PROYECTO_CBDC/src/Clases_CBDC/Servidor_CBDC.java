@@ -14,7 +14,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JLabel;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JTextField;
@@ -37,13 +39,18 @@ public class Servidor_CBDC extends JFrame {
 	public final int _PuertoIRPF = 9980;
 	public final int Puerto_carbono = 9981;
 	public final int Puerto_caducidad = 9982;
+	public final int PuertoOperatividad = 9983;
+	public final int PuertoOperatividad2 = 9984;
 	private JLabel bce_logo, emision, interes, EstableceLimiteCO2, AplicarIrpf, caducidad_dinero, prestamo,
-			lblFechaDeEntrega, lblCantidad;
+			lblFechaDeEntrega, lblCantidad, Operatividad;
 	private JTextField cantidad, tipo_interes, carbono, fecha_caducidad, cantidad_prestar, fecha_entrega;
-	private JButton Emitir, tipo_interes_boton, carbono_boton, IRPF_boton, tipo_interes_boton_1, Prestar, Eliminar, Devolver;
+	private JButton Emitir, tipo_interes_boton, carbono_boton, IRPF_boton, caducidad_prestamos, Prestar, Eliminar,
+			Devolver;
 	private Banco_Central_CBDC BCE;
 	private ArrayList<Cuenta_bancaria_CBDC> Cuentas;
 	private Cuenta_bancaria_CBDC modelo;
+	private JRadioButton radioOperativa, radioNoOperativa;
+	private ButtonGroup grupoRadio;
 
 	public static void main(String[] args) {
 		Servidor_CBDC marco = new Servidor_CBDC();
@@ -63,9 +70,9 @@ public class Servidor_CBDC extends JFrame {
 		setResizable(false);
 		Toolkit pantalla = Toolkit.getDefaultToolkit();
 		Dimension tam = pantalla.getScreenSize();
-		int ancho = tam.width/4;
-		int altura = tam.height/4;
-		setBounds(ancho, altura, 780, 420);
+		int ancho = tam.width / 4;
+		int altura = tam.height / 4;
+		setBounds(ancho, altura, 780, 450);
 
 		// CREAMOS EL JPANEL
 		milamina = new JPanel();
@@ -111,6 +118,12 @@ public class Servidor_CBDC extends JFrame {
 		caducidad_dinero.setFont(new Font("Verdana", Font.BOLD, 11));
 		caducidad_dinero.setBounds(10, 262, 290, 27);
 		milamina.add(caducidad_dinero);
+
+		Operatividad = new JLabel("Modificar la operatividad de las cuentas");
+		Operatividad.setForeground(Color.BLUE);
+		Operatividad.setFont(new Font("Verdana", Font.BOLD, 11));
+		Operatividad.setBounds(10, 362, 290, 27);
+		milamina.add(Operatividad);
 
 		prestamo = new JLabel("Introduce el préstamo a realizar por cuenta\r\n");
 		prestamo.setForeground(Color.BLUE);
@@ -168,9 +181,13 @@ public class Servidor_CBDC extends JFrame {
 		Emitir.setFont(new Font("Verdana Pro Cond Semibold", Font.PLAIN, 11));
 		Emitir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double numero = Double.parseDouble(cantidad.getText().toString());
-				BCE.crearDineroTotal(numero);
-				System.out.println(modelo.obtenerSaldo());
+				try {
+					double numero = Double.parseDouble(cantidad.getText().toString());
+					BCE.crearDineroTotal(numero);
+				} catch (NumberFormatException e1) {
+					cantidad.setText("ERROR");
+					cantidad.setForeground(Color.red);
+				}
 				Thread hiloEmitir = new Thread(new Runnable() {
 					public void run() {
 						try {
@@ -186,6 +203,9 @@ public class Servidor_CBDC extends JFrame {
 
 						} catch (IOException e1) {
 							System.out.println(e1.getMessage());
+						} catch (NumberFormatException e1) {
+							cantidad.setText("ERROR");
+							cantidad.setForeground(Color.red);
 						}
 					}
 				});
@@ -200,22 +220,29 @@ public class Servidor_CBDC extends JFrame {
 		tipo_interes_boton.setFont(new Font("Verdana Pro Cond Semibold", Font.PLAIN, 11));
 		tipo_interes_boton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double numero = Double.parseDouble(tipo_interes.getText().toString());
-				BCE.establecerTipoInteres(numero);
-				System.out.println(modelo.obtenerInteresBancoCentral());
+				try {
+					double numero = Double.parseDouble(tipo_interes.getText().toString());
+					BCE.establecerTipoInteres(numero);
+				} catch (NumberFormatException e1) {
+					tipo_interes.setText("ERROR");
+					tipo_interes.setForeground(Color.red);
+				}
 				Thread hiloEmitir = new Thread(new Runnable() {
 					public void run() {
 						try {
 							ServerSocket socket_servidor = new ServerSocket(_PuertoInteres);
 							Socket socket_cliente = socket_servidor.accept();
 							DataOutputStream entrada = new DataOutputStream(socket_cliente.getOutputStream());
-							entrada.writeDouble(numero);
+							entrada.writeDouble(modelo.obtenerInteresBancoCentral());
 							entrada.flush();
 							entrada.close();
 							socket_servidor.close();
 							socket_cliente.close();
 						} catch (IOException e1) {
 							System.out.println(e1.getMessage());
+						} catch (NumberFormatException e1) {
+							tipo_interes.setText("ERROR");
+							tipo_interes.setForeground(Color.red);
 						}
 					}
 				});
@@ -230,9 +257,13 @@ public class Servidor_CBDC extends JFrame {
 		carbono_boton.setFont(new Font("Verdana Pro Cond Semibold", Font.PLAIN, 11));
 		carbono_boton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double numero = Double.parseDouble(carbono.getText().toString());
-				BCE.modificarLimiteHuellaCuenta(numero);
-				System.out.println(modelo.obtenerLimiteHuellaCarbono());
+				try {
+					double numero = Double.parseDouble(carbono.getText().toString());
+					BCE.modificarLimiteHuellaCuenta(numero);
+				} catch (NumberFormatException e1) {
+					carbono.setText("ERROR");
+					carbono.setForeground(Color.red);
+				}
 				try {
 					ServerSocket socket_servidor = new ServerSocket(Puerto_carbono);
 					Socket socket_cliente = socket_servidor.accept();
@@ -254,7 +285,6 @@ public class Servidor_CBDC extends JFrame {
 		IRPF_boton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				BCE.establecerTramosIrpfCuenta(modelo);
-				System.out.println(modelo.aplicarIRPF());
 				Thread hiloEmitir = new Thread(new Runnable() {
 					public void run() {
 						try {
@@ -277,9 +307,9 @@ public class Servidor_CBDC extends JFrame {
 		IRPF_boton.setBounds(314, 226, 88, 25);
 		milamina.add(IRPF_boton);
 
-		tipo_interes_boton_1 = new JButton("Caducidad");
-		tipo_interes_boton_1.setFont(new Font("Verdana Pro Cond Semibold", Font.PLAIN, 11));
-		tipo_interes_boton_1.addActionListener(new ActionListener() {
+		caducidad_prestamos = new JButton("Caducidad");
+		caducidad_prestamos.setFont(new Font("Verdana Pro Cond Semibold", Font.PLAIN, 11));
+		caducidad_prestamos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String fecha_caducidad2 = fecha_caducidad.getText();
 				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -289,6 +319,9 @@ public class Servidor_CBDC extends JFrame {
 					System.out.println(date);
 				} catch (ParseException e1) {
 					System.out.println(e1.getMessage());
+				}catch (NumberFormatException e1) {
+					fecha_entrega.setText("ERROR");
+					fecha_entrega.setForeground(Color.red);
 				}
 
 				Thread hiloEmitir = new Thread(new Runnable() {
@@ -312,8 +345,8 @@ public class Servidor_CBDC extends JFrame {
 				hiloEmitir.start();
 			}
 		});
-		tipo_interes_boton_1.setBounds(462, 264, 103, 25);
-		milamina.add(tipo_interes_boton_1);
+		caducidad_prestamos.setBounds(462, 264, 103, 25);
+		milamina.add(caducidad_prestamos);
 
 		Prestar = new JButton("Prestar");
 		Prestar.setFont(new Font("Verdana Pro Cond Semibold", Font.PLAIN, 11));
@@ -343,6 +376,9 @@ public class Servidor_CBDC extends JFrame {
 							System.out.println(e1.getMessage());
 						} catch (ParseException e1) {
 							System.out.println(e1.getMessage());
+						}catch (NumberFormatException e1) {
+							cantidad_prestar.setText("ERROR");
+							cantidad_prestar.setForeground(Color.red);
 						}
 					}
 				});
@@ -375,6 +411,9 @@ public class Servidor_CBDC extends JFrame {
 
 						} catch (IOException e1) {
 							System.out.println(e1.getMessage());
+						}catch (NumberFormatException e1) {
+							cantidad.setText("ERROR");
+							cantidad.setForeground(Color.red);
 						}
 					}
 				});
@@ -384,7 +423,7 @@ public class Servidor_CBDC extends JFrame {
 		});
 		Eliminar.setBounds(560, 120, 88, 25);
 		milamina.add(Eliminar);
-		
+
 		Devolver = new JButton("Devolver");
 		Devolver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -412,6 +451,9 @@ public class Servidor_CBDC extends JFrame {
 							System.out.println(e1.getMessage());
 						} catch (ParseException e1) {
 							System.out.println(e1.getMessage());
+						}catch (NumberFormatException e1) {
+							cantidad_prestar.setText("ERROR");
+							cantidad_prestar.setForeground(Color.red);
 						}
 					}
 				});
@@ -423,5 +465,62 @@ public class Servidor_CBDC extends JFrame {
 		Devolver.setBounds(575, 314, 88, 25);
 		milamina.add(Devolver);
 
+		radioOperativa = new JRadioButton("Operativa");
+		radioOperativa.setBounds(315, 364, 100, 25);
+		radioOperativa.addActionListener(e -> {
+			Thread hiloEmitir = new Thread(new Runnable() {
+				public void run() {
+					try {
+						BCE.cambiarOperatividad(modelo, true);
+						;
+						ServerSocket socket_servidor = new ServerSocket(PuertoOperatividad);
+						while (true) {
+							Socket socket_cliente = socket_servidor.accept();
+							DataOutputStream entrada = new DataOutputStream(socket_cliente.getOutputStream());
+							entrada.writeBoolean(modelo.EsOperativa());
+							entrada.close();
+							socket_servidor.close();
+							socket_cliente.close();
+						}
+
+					} catch (IOException e1) {
+						System.out.println(e1.getMessage());
+					}
+				}
+			});
+			// Inicia el hilo
+			hiloEmitir.start();
+		});
+		milamina.add(radioOperativa);
+
+		radioNoOperativa = new JRadioButton("No Operativa");
+		radioNoOperativa.setBounds(423, 364, 100, 25);
+		radioNoOperativa.addActionListener(e -> {
+			Thread hiloEmitir = new Thread(new Runnable() {
+				public void run() {
+					try {
+						BCE.cambiarOperatividad(modelo, false);
+						ServerSocket socket_servidor = new ServerSocket(PuertoOperatividad2);
+						while (true) {
+							Socket socket_cliente = socket_servidor.accept();
+							DataOutputStream entrada = new DataOutputStream(socket_cliente.getOutputStream());
+							entrada.writeBoolean(modelo.EsOperativa());
+							entrada.close();
+							socket_servidor.close();
+							socket_cliente.close();
+						}
+					} catch (IOException e1) {
+						System.out.println(e1.getMessage());
+					}
+				}
+			});
+			// Inicia el hilo
+			hiloEmitir.start();
+		});
+		milamina.add(radioNoOperativa);
+
+		grupoRadio = new ButtonGroup();
+		grupoRadio.add(radioOperativa);
+		grupoRadio.add(radioNoOperativa);
 	}
 }
