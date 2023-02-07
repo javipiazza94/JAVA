@@ -8,40 +8,45 @@ public class Banco_Central_CBDC {
 
 	private double interes;
 	private List<Cuenta_bancaria_CBDC> cuentasTotales;
-	private double coeficiente_caja;
-	private double dineroEnCirculacion;
+	private double baseMonetaria;
+	private double multiplicadorMonetario;
+	private double ofertaMonetaria;
+	private double reserva;
 
 	// Constructor
-	public Banco_Central_CBDC() {
+	public Banco_Central_CBDC(double coeficiente_caja) {
 		this.interes = 0;
-		this.coeficiente_caja = 0;
 		this.cuentasTotales = new ArrayList<>();
-		this.dineroEnCirculacion = 0;
+		this.baseMonetaria = 0;
+		this.reserva = coeficiente_caja;
+		this.multiplicadorMonetario = 1 / obtenerReserva();
+		this.ofertaMonetaria = calcularOfertaMonetaria();
 	}
 	
-
-	public double obtenerDineroEnCirculacion() {
-		return dineroEnCirculacion;
+	//Obtenemos BN
+	public double obtenerBaseMonetaria() {
+		return baseMonetaria;
 	}
 
-	public void modificarDineroEnCirculacion(double dineroEnCirculacion) {
-		this.dineroEnCirculacion = dineroEnCirculacion;
+	//Obtenemos reserva
+	public double obtenerReserva() {
+		return reserva;
 	}
-
-	public double obtenerCoeficiente_caja() {
-		return coeficiente_caja;
+	
+	//Obtenemos OM
+	double obtenerOfertaMonetaria() {
+		return baseMonetaria * multiplicadorMonetario;
 	}
-
-	public void modificarCoeficiente_caja(double coeficiente_caja) {
-		this.coeficiente_caja = coeficiente_caja;
-	}
-
 
 	// Obtenemos el interes
 	public double obtenerInteres() {
 		return interes;
 	}
 
+	public double calcularOfertaMonetaria() {
+        return this.baseMonetaria * this.multiplicadorMonetario;
+    }
+	
 	// Obtenemos las cuentas
 	public List<Cuenta_bancaria_CBDC> obtenerCuentasTotales() {
 		return cuentasTotales;
@@ -86,6 +91,22 @@ public class Banco_Central_CBDC {
 			cuenta.modificarSaldo(cuenta.obtenerSaldo() / 2);
 		}
 	}
+	
+	//Modificamos OM
+	public void modificarOfertaMonetaria(double ofertaMonetaria) {
+		this.ofertaMonetaria = ofertaMonetaria;
+	}
+
+	//Modificamos BM
+	public void modificarBaseMonetaria(double baseMonetaria) {
+		this.baseMonetaria = baseMonetaria;
+	}
+
+	//Modificamos reserva
+	public void modificarReserva(double nuevaReserva) {
+		  reserva = nuevaReserva;
+		  multiplicadorMonetario = baseMonetaria / reserva;
+	}
 
 	// Modificamos el tipo de interes de una cuenta individual
 	public void modificarInteresCuenta(Cuenta_bancaria_CBDC cuenta, double interes) {
@@ -118,7 +139,6 @@ public class Banco_Central_CBDC {
 
 	// Metodo para cambiar la huella de carbono total de todas las cuentas por renta
 	public void modificarLimiteHuellaPorRenta() {
-
 		double carbono = 0;
 		for (Cuenta_bancaria_CBDC cuenta_bancaria_CBDC : cuentasTotales) {
 			if (cuenta_bancaria_CBDC.obtenerSaldo() < 10000) {
@@ -212,45 +232,52 @@ public class Banco_Central_CBDC {
 	public void eliminarDineroTotal(double cantidad) {
 		for (Cuenta_bancaria_CBDC cuenta_bancaria_CBDC : cuentasTotales) {
 			cuenta_bancaria_CBDC.retirar(cantidad);
+			   this.baseMonetaria -= cantidad;
 		}
 	}
 
 	// Prestamos dinero de una cuenta
 	public double prestarDineroCuenta(Cuenta_bancaria_CBDC cuenta, double cantidad, Date plazoEntrega) {
-		if (cuenta.EsOperativa() == true && cuenta.obtenerSaldo() >= 0 && cantidad > 0
-				&& plazoEntrega.before(cuenta.obtenerCaducidad())) {
-			cuenta.depositar(cantidad);
-			cuenta.agregarTransaccion(cantidad);
-			cuenta.modificarEsPrestado(true);
-		}
+		if (cantidad<this.ofertaMonetaria) {
+			if (cuenta.EsOperativa() == true && cuenta.obtenerSaldo() >= 0 && cantidad > 0
+					&& plazoEntrega.before(cuenta.obtenerCaducidad())) {
+				cuenta.depositar(cantidad);
+				cuenta.agregarTransaccion(cantidad);
+				cuenta.modificarEsPrestado(true);
+			}
+		}	
 		return cantidad;
 	}
 
 	// Devolvemos dinero prestado de una cuenta
 	public double pedirDineroCuenta(Cuenta_bancaria_CBDC cuenta, double cantidad, Date plazoEntrega) {
 		Date actualdate = new Date();
-		if ((plazoEntrega.equals(actualdate) || plazoEntrega.before(actualdate)) && cuenta.obtenerEsPrestado()==true ) {
+		if ((plazoEntrega.equals(actualdate) || plazoEntrega.before(actualdate))
+				&& cuenta.obtenerEsPrestado() == true) {
 			cuenta.retirar(cantidad + (cantidad * (this.interes / 100)));
 			cuenta.agregarTransaccion(cantidad);
 		}
-		return cantidad + (cantidad * (this.interes / 100)) ;
+		return cantidad + (cantidad * (this.interes / 100));
 	}
 
 	// Eliminamos dinero de una cuenta
 	public void eliminarDineroCuenta(Cuenta_bancaria_CBDC cuenta, double cantidad) {
 		cuenta.retirar(cantidad);
+		this.baseMonetaria -= cantidad;
 	}
 
 	// Creamos dinero y lo mandamos a las cuentas
 	public void crearDineroTotal(double cantidad) {
-		for (Cuenta_bancaria_CBDC cuenta_bancaria_CBDC : cuentasTotales) {
+		 	for (Cuenta_bancaria_CBDC cuenta_bancaria_CBDC : cuentasTotales) {
 			cuenta_bancaria_CBDC.depositar(cantidad);
+			 this.baseMonetaria += cantidad;
 		}
 	}
 
 	// Creamos dinero para solo una cuenta
 	public void crearDineroCuenta(Cuenta_bancaria_CBDC cuenta, double cantidad) {
 		cuenta.depositar(cantidad);
+		this.baseMonetaria += cantidad;
 	}
 
 	// Modificamos las cuentas
@@ -310,4 +337,13 @@ public class Banco_Central_CBDC {
 			}
 		return resultado;
 	}
+
+	@Override
+	public String toString() {
+		return "Banco_Central_CBDC [interes=" + interes + ", cuentasTotales=" + cuentasTotales + ", baseMonetaria="
+				+ baseMonetaria + ", multiplicadorMonetario=" + multiplicadorMonetario + ", ofertaMonetaria="
+				+ calcularOfertaMonetaria() + ", reserva=" + reserva + "]";
+	}
+	
+	
 }

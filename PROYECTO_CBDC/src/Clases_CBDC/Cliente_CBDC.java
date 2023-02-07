@@ -36,9 +36,9 @@ import java.awt.event.ActionEvent;
 public class Cliente_CBDC extends JFrame {
 
 	private static final long serialVersionUID = 5787738098682905747L;
-	
-	public static void comunicarOperatividadFalse(Cuenta_bancaria_CBDC modelo, JLabel falso,
-			Banco_Central_CBDC bce) throws ParseException {
+
+	public static void comunicarOperatividadFalse(Cuenta_bancaria_CBDC modelo, JLabel falso, Banco_Central_CBDC bce)
+			throws ParseException {
 		try {
 			// Crea un socket para conectarse al servidor
 			Socket socket = new Socket("localhost", 9984);
@@ -59,9 +59,9 @@ public class Cliente_CBDC extends JFrame {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void comunicarOperatividadTrue(Cuenta_bancaria_CBDC modelo, JLabel verdadero,
-			Banco_Central_CBDC bce) throws ParseException {
+
+	public static void comunicarOperatividadTrue(Cuenta_bancaria_CBDC modelo, JLabel verdadero, Banco_Central_CBDC bce)
+			throws ParseException {
 		try {
 			// Crea un socket para conectarse al servidor
 			Socket socket = new Socket("localhost", 9983);
@@ -341,23 +341,41 @@ public class Cliente_CBDC extends JFrame {
 				}
 			}
 		});
-
 	}
 
 	/**
 	 * Create the frame.
 	 */
-
 	public Cliente_CBDC() {
 
-		// INSTANCIAMOS EL BANCO CENTRAL Y LAS CUENTAS
-		BCE = new Banco_Central_CBDC();
-		String nombre_cuenta = JOptionPane.showInputDialog("Introduce el nombre del beneficiario de la cuenta");
-		String sexito = JOptionPane
-				.showInputDialog("Introduce el sexo del beneficiario de la cuenta con las letras h o m");
-		char sexo = ConvertirCadenaALetra(sexito);
-		double saldo_inicial = Integer.parseInt(JOptionPane.showInputDialog("Introduce el saldo inicial de la cuenta"));
-		modelo = new Cuenta_bancaria_CBDC(nombre_cuenta, sexo, saldo_inicial);
+		// INSTANCIAMOS LAS CUENTAS CON UN BUCLE HASTA QUE EL CLIENTE PONGA BIEN LOS
+		// DATOS
+		Banco_Central_CBDC BCE = new Banco_Central_CBDC(0.05);
+		boolean datoscorrectos = false;
+		while (!datoscorrectos) {
+			try {
+				String nombre_cuenta = JOptionPane.showInputDialog("Introduce el nombre del beneficiario de la cuenta");
+				if (nombre_cuenta == null) {
+					System.exit(0);
+				}
+				String sexito = JOptionPane
+						.showInputDialog("Introduce el sexo del beneficiario de la cuenta con las letras h o m");
+				if (sexito == null) {
+					System.exit(0);
+				}
+				char sexo = ConvertirCadenaALetra(sexito);
+				String saldoInicialString = JOptionPane.showInputDialog("Introduce el saldo inicial de la cuenta");
+				double saldo_inicial = Integer.parseInt(saldoInicialString);
+				if (saldoInicialString == null) {
+					System.exit(0);
+				}
+				modelo = new Cuenta_bancaria_CBDC(nombre_cuenta, sexo, saldo_inicial);
+				datoscorrectos=true;
+			} catch (NumberFormatException e1) {
+				JOptionPane.showMessageDialog(null, "Introduzca bien los datos. Gracias", "Advertencia",
+						JOptionPane.WARNING_MESSAGE);
+			}	
+		}
 
 		// CREAMOS LAS LISTAS
 		String[] idTransacciones = modelo.obtenerIdTransacciones();
@@ -584,33 +602,39 @@ public class Cliente_CBDC extends JFrame {
 		JButton ingresar_boton = new JButton("INGRESAR");
 		ingresar_boton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double numero = Double.parseDouble(ingresar_cantidad.getText().toString());
-				String nombreProducto = "Ingreso";
+				try {
+					double numero = Double.parseDouble(ingresar_cantidad.getText().toString());
+					String nombreProducto = "Ingreso";
 
-				// Modificamos los saldos y campos
-				modelo.depositar(numero);
-				Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
-				booleano_operativa.setText(ImprimirOperatividad(modelo));
+					// Modificamos los saldos y campos
+					modelo.depositar(numero);
+					Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+					booleano_operativa.setText(ImprimirOperatividad(modelo));
 
-				// Creamos una lista temporal
-				List<String> listaProductosTemporal = new ArrayList<>();
-				for (int i = 0; i < listaProductos.getModel().getSize(); i++) {
-					listaProductosTemporal.add(listaProductos.getModel().getElementAt(i));
+					// Creamos una lista temporal
+					List<String> listaProductosTemporal = new ArrayList<>();
+					for (int i = 0; i < listaProductos.getModel().getSize(); i++) {
+						listaProductosTemporal.add(listaProductos.getModel().getElementAt(i));
+					}
+
+					List<String> listaImporteTemporal = new ArrayList<>();
+					for (int i = 0; i < listaImporte.getModel().getSize(); i++) {
+						listaImporteTemporal.add(listaImporte.getModel().getElementAt(i));
+					}
+
+					// Agrega los datos a las listas temporales
+					listaProductosTemporal.add(nombreProducto);
+					listaImporteTemporal.add(String.valueOf(numero));
+
+					// Actualiza los datos de las JList
+					listaProductos.setListData(listaProductosTemporal.toArray(new String[listaProductosTemporal.size()]));
+					listaTransacciones.setListData(modelo.obtenerIdTransacciones());
+					listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()]));
+				
+				} catch (NumberFormatException e1) {
+					ingresar_cantidad.setText("ERROR");
+					ingresar_cantidad.setForeground(Color.red);
 				}
-
-				List<String> listaImporteTemporal = new ArrayList<>();
-				for (int i = 0; i < listaImporte.getModel().getSize(); i++) {
-					listaImporteTemporal.add(listaImporte.getModel().getElementAt(i));
-				}
-
-				// Agrega los datos a las listas temporales
-				listaProductosTemporal.add(nombreProducto);
-				listaImporteTemporal.add(String.valueOf(numero));
-
-				// Actualiza los datos de las JList
-				listaProductos.setListData(listaProductosTemporal.toArray(new String[listaProductosTemporal.size()]));
-				listaTransacciones.setListData(modelo.obtenerIdTransacciones());
-				listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()]));
 			}
 		});
 		ingresar_boton.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
@@ -618,46 +642,51 @@ public class Cliente_CBDC extends JFrame {
 		milamina.add(ingresar_boton);
 
 		JButton gastar_boton = new JButton("RETIRAR");
-		gastar_boton.addActionListener(new ActionListener() {
+		gastar_boton.addActionListener(new ActionListener() {		
 			public void actionPerformed(ActionEvent e) {
-				if (modelo.EsOperativa() && modelo.obtenerSaldo() > 0) {
-					double numero = Double.parseDouble(gastar_cantidad.getText().toString());
-					String nombreProducto = "Retirada de efectivo";
+				try {
+					if (modelo.EsOperativa() && modelo.obtenerSaldo() > 0) {
+						double numero = Double.parseDouble(gastar_cantidad.getText().toString());
+						String nombreProducto = "Retirada de efectivo";
 
-					// Retiramos el dinero
-					if (modelo.validarRetiros(numero) == true) {
-						modelo.retirar(numero);
-						Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
-						booleano_operativa.setText(ImprimirOperatividad(modelo));
+						// Retiramos el dinero
+						if (modelo.validarRetiros(numero) == true) {
+							modelo.retirar(numero);
+							Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
+							booleano_operativa.setText(ImprimirOperatividad(modelo));
 
-						// Crea una lista temporal
-						List<String> listaProductosTemporal = new ArrayList<>();
-						for (int i = 0; i < listaProductos.getModel().getSize(); i++) {
-							listaProductosTemporal.add(listaProductos.getModel().getElementAt(i));
+							// Crea una lista temporal
+							List<String> listaProductosTemporal = new ArrayList<>();
+							for (int i = 0; i < listaProductos.getModel().getSize(); i++) {
+								listaProductosTemporal.add(listaProductos.getModel().getElementAt(i));
+							}
+
+							List<String> listaImporteTemporal = new ArrayList<>();
+							for (int i = 0; i < listaImporte.getModel().getSize(); i++) {
+								listaImporteTemporal.add(listaImporte.getModel().getElementAt(i));
+							}
+
+							// Agrega los datos a las listas temporales
+							listaProductosTemporal.add(nombreProducto);
+							listaImporteTemporal.add(String.valueOf(-numero));
+
+							// Actualiza los datos de las JList
+							listaProductos
+									.setListData(listaProductosTemporal.toArray(new String[listaProductosTemporal.size()]));
+							listaTransacciones.setListData(modelo.obtenerIdTransacciones());
+							listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()]));
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"La operación no es posible porque no tiene suficiente saldo", "Advertencia",
+									JOptionPane.WARNING_MESSAGE);
 						}
-
-						List<String> listaImporteTemporal = new ArrayList<>();
-						for (int i = 0; i < listaImporte.getModel().getSize(); i++) {
-							listaImporteTemporal.add(listaImporte.getModel().getElementAt(i));
-						}
-
-						// Agrega los datos a las listas temporales
-						listaProductosTemporal.add(nombreProducto);
-						listaImporteTemporal.add(String.valueOf(-numero));
-
-						// Actualiza los datos de las JList
-						listaProductos
-								.setListData(listaProductosTemporal.toArray(new String[listaProductosTemporal.size()]));
-						listaTransacciones.setListData(modelo.obtenerIdTransacciones());
-						listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()]));
 					} else {
-						JOptionPane.showMessageDialog(null,
-								"La operación no es posible porque no tiene suficiente saldo", "Advertencia",
-								JOptionPane.WARNING_MESSAGE);
+						modelo.mensajeOperatividad();
 					}
-				} else {
-					modelo.mensajeOperatividad();
-				}
+				}catch (NumberFormatException e1) {
+					gastar_cantidad.setText("ERROR");
+					gastar_cantidad.setForeground(Color.red);
+				}	
 			}
 		});
 		gastar_boton.setFont(new Font("Verdana Pro Cond", Font.BOLD, 15));
@@ -672,7 +701,7 @@ public class Cliente_CBDC extends JFrame {
 				comunicarInteres(modelo, interes, Saldo);
 				comunicarIRPF(modelo, IRPF, Saldo);
 				comunicarlimiteHuellaCarbono(modelo, carbono);
-				
+
 				try {
 					comunicarCaducidad(modelo, caducidad, Saldo, BCE);
 					comunicarPrestamo(modelo, deuda, Saldo, BCE);
@@ -702,7 +731,7 @@ public class Cliente_CBDC extends JFrame {
 					Producto_CBDC producto = new Producto_CBDC(ImporteProducto, HuellaProducto, nombreProducto);
 
 					// Realizamos la compra y actualizamos labels
-					if ((modelo.calcularHuellaCarbonoTotal() + HuellaProducto )<modelo.obtenerLimiteHuellaCarbono()) {
+					if ((modelo.calcularHuellaCarbonoTotal() + HuellaProducto) < modelo.obtenerLimiteHuellaCarbono()) {
 						modelo.realizarCompra(producto);
 						Saldo.setText(String.valueOf(modelo.obtenerSaldo()));
 
@@ -718,19 +747,27 @@ public class Cliente_CBDC extends JFrame {
 						// Actualiza los datos de las JList
 						listaProductos.setListData(modelo.obtenerNombreProducto());
 						listaTransacciones.setListData(modelo.obtenerIdTransacciones());
-						listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()])); // Lo hacemos asi para que imprima el numero en negativo
-					}
-					else {
+						listaImporte.setListData(listaImporteTemporal.toArray(new String[listaImporteTemporal.size()])); // Lo
+																															// hacemos
+																															// asi
+																															// para
+																															// que
+																															// imprima
+																															// el
+																															// numero
+																															// en
+																															// negativo
+					} else {
 						JOptionPane.showMessageDialog(null,
-								"Greta Thunberg te informa que la operación no es posible porque te has pasado en tu huella de carbono", "Advertencia",
-								JOptionPane.WARNING_MESSAGE);
+								"Greta Thunberg te informa que la operación no es posible porque te has pasado en tu huella de carbono",
+								"Advertencia", JOptionPane.WARNING_MESSAGE);
 						modelo.modificarOperativa(false);
 						booleano_operativa.setText(ImprimirOperatividad(modelo));
 					}
 				} else {
 					modelo.mensajeOperatividad();
 					modelo.modificarOperativa(false);
-					booleano_operativa.setText(ImprimirOperatividad(modelo));				
+					booleano_operativa.setText(ImprimirOperatividad(modelo));
 				}
 			}
 		});
@@ -746,5 +783,4 @@ public class Cliente_CBDC extends JFrame {
 		listaImporte.setBounds(435, 210, 100, 190);
 		milamina.add(listaImporte);
 	}
-
 }

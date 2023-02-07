@@ -27,7 +27,6 @@ import java.awt.Color;
 import javax.swing.SwingConstants;
 
 public class Servidor_CBDC extends JFrame {
-
 	private static final long serialVersionUID = -2809579001833735375L;
 	private JPanel milamina;
 	public final String IP = "localhost";
@@ -62,7 +61,7 @@ public class Servidor_CBDC extends JFrame {
 	public Servidor_CBDC() {
 
 		// INSTANCIAMOS EL BANCO CENTRAL Y LAS CUENTAS
-		BCE = new Banco_Central_CBDC();
+		BCE = new Banco_Central_CBDC(0.05);
 		modelo = new Cuenta_bancaria_CBDC("Random", 'h', 0);
 		BCE.crearCuenta(modelo);
 

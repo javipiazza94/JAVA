@@ -7,7 +7,7 @@ public class Uso_CBDC {
 
 	public static void main(String[] args) {	
 		// Crea dos objetos de la clase Cuenta_corriente_CBDC y el Banco Central
-		Banco_Central_CBDC BCE = new Banco_Central_CBDC();
+		Banco_Central_CBDC BCE = new Banco_Central_CBDC(0.05);
 		Cuenta_bancaria_CBDC cuenta1 = new Cuenta_bancaria_CBDC("Pedro Varela", 'h', 0);
 		Cuenta_bancaria_CBDC cuenta2 = new Cuenta_bancaria_CBDC("Ana Martínez",'h', 0);
 		Cuenta_bancaria_CBDC cuenta3 = new Cuenta_bancaria_CBDC("Pepe Martínez", 'h', 0);
