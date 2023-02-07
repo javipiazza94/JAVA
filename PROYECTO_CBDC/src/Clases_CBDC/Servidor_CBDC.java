@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -27,6 +28,7 @@ import java.awt.Color;
 import javax.swing.SwingConstants;
 
 public class Servidor_CBDC extends JFrame {
+	
 	private static final long serialVersionUID = -2809579001833735375L;
 	private JPanel milamina;
 	public final String IP = "localhost";
@@ -41,7 +43,7 @@ public class Servidor_CBDC extends JFrame {
 	public final int PuertoOperatividad = 9983;
 	public final int PuertoOperatividad2 = 9984;
 	private JLabel bce_logo, emision, interes, EstableceLimiteCO2, AplicarIrpf, caducidad_dinero, prestamo,
-			lblFechaDeEntrega, lblCantidad, Operatividad;
+			lblFechaDeEntrega, lblCantidad, Operatividad, BM, CF, OM, lblBaseMonetaria, lblReservas, lblOfertaMonetaria;
 	private JTextField cantidad, tipo_interes, carbono, fecha_caducidad, cantidad_prestar, fecha_entrega;
 	private JButton Emitir, tipo_interes_boton, carbono_boton, IRPF_boton, caducidad_prestamos, Prestar, Eliminar,
 			Devolver;
@@ -49,7 +51,12 @@ public class Servidor_CBDC extends JFrame {
 	private ArrayList<Cuenta_bancaria_CBDC> Cuentas;
 	private Cuenta_bancaria_CBDC modelo;
 	private JRadioButton radioOperativa, radioNoOperativa;
-	private ButtonGroup grupoRadio;
+	private ButtonGroup grupoRadio;	
+	private void actualizarLabels() {
+		  BM.setText(String.valueOf(BCE.obtenerBaseMonetaria()));
+		  CF.setText(String.valueOf(BCE.obtenerReserva()));
+		  OM.setText(String.valueOf(BCE.obtenerOfertaMonetaria()));
+		}
 
 	public static void main(String[] args) {
 		Servidor_CBDC marco = new Servidor_CBDC();
@@ -61,7 +68,24 @@ public class Servidor_CBDC extends JFrame {
 	public Servidor_CBDC() {
 
 		// INSTANCIAMOS EL BANCO CENTRAL Y LAS CUENTAS
-		BCE = new Banco_Central_CBDC(0.05);
+		boolean datoscorrectos = false;
+		while (!datoscorrectos) {
+			try {
+				String CC = JOptionPane.showInputDialog("Introduce el coeficiente de caja del Banco Central");
+				double caja_inicial = Double.parseDouble(CC);
+				if (CC == null) {
+					System.exit(0);
+				}
+				BCE = new Banco_Central_CBDC(caja_inicial);
+				datoscorrectos=true;
+			} catch (NumberFormatException e1) {
+				JOptionPane.showMessageDialog(null, "Introduzca bien los datos. Gracias", "Advertencia",
+						JOptionPane.WARNING_MESSAGE);
+			}	catch (IllegalArgumentException e) {
+			    JOptionPane.showMessageDialog(null, e.getMessage(), "Advertencia", JOptionPane.WARNING_MESSAGE);
+			  }
+		}
+		
 		modelo = new Cuenta_bancaria_CBDC("Random", 'h', 0);
 		BCE.crearCuenta(modelo);
 
@@ -85,7 +109,7 @@ public class Servidor_CBDC extends JFrame {
 		// ETIQUETAS
 		bce_logo = new JLabel("");
 		bce_logo.setIcon(new ImageIcon("./src/IMAGENES/European-Central-Bank-logo.jpg"));
-		bce_logo.setBounds(270, 10, 231, 100);
+		bce_logo.setBounds(211, 7, 231, 100);
 		milamina.add(bce_logo);
 
 		emision = new JLabel("Introduce la cantidad a emitir a cada cuenta");
@@ -136,6 +160,49 @@ public class Servidor_CBDC extends JFrame {
 		lblFechaDeEntrega.setFont(new Font("Verdana", Font.BOLD, 11));
 		lblFechaDeEntrega.setBounds(440, 292, 137, 27);
 		milamina.add(lblFechaDeEntrega);
+		
+		lblReservas = new JLabel("Coeficiente de reservas");
+		lblReservas.setForeground(Color.BLUE);
+		lblReservas.setFont(new Font("Verdana", Font.BOLD, 11));
+		lblReservas.setBounds(484, 36, 164, 27);
+		milamina.add(lblReservas);		
+		
+		lblOfertaMonetaria = new JLabel("Oferta monetaria");
+		lblOfertaMonetaria.setForeground(Color.BLUE);
+		lblOfertaMonetaria.setFont(new Font("Verdana", Font.BOLD, 11));
+		lblOfertaMonetaria.setBounds(526, 60, 127, 27);
+		milamina.add(lblOfertaMonetaria);
+		
+		BM = new JLabel("");
+		BM.setBounds(666, 18, 88, 14);
+		BM.setForeground(Color.BLUE);
+		BM.setFont(new Font("Verdana", Font.BOLD, 11));
+		milamina.add(BM);
+		
+		CF = new JLabel("");
+		CF.setBounds(666, 43, 88, 14);
+		CF.setForeground(Color.BLUE);
+		CF.setFont(new Font("Verdana", Font.BOLD, 11));
+		milamina.add(CF);
+		
+		OM = new JLabel("");
+		OM.setBounds(666, 65, 88, 14);
+		OM.setForeground(Color.BLUE);
+		OM.setFont(new Font("Verdana", Font.BOLD, 11));
+		milamina.add(OM);
+		
+		lblBaseMonetaria = new JLabel("Base monetaria");
+		lblBaseMonetaria.setForeground(Color.BLUE);
+		lblBaseMonetaria.setFont(new Font("Verdana", Font.BOLD, 11));
+		lblBaseMonetaria.setBounds(538, 11, 110, 27);
+		milamina.add(lblBaseMonetaria);	
+		
+		lblCantidad = new JLabel("Cantidad");
+		lblCantidad.setHorizontalAlignment(SwingConstants.CENTER);
+		lblCantidad.setForeground(Color.BLUE);
+		lblCantidad.setFont(new Font("Verdana", Font.BOLD, 11));
+		lblCantidad.setBounds(314, 292, 137, 27);
+		milamina.add(lblCantidad);
 
 		// TEXTO
 		cantidad = new JTextField();
@@ -158,13 +225,6 @@ public class Servidor_CBDC extends JFrame {
 		carbono.setBounds(315, 189, 137, 23);
 		milamina.add(carbono);
 
-		lblCantidad = new JLabel("Cantidad");
-		lblCantidad.setHorizontalAlignment(SwingConstants.CENTER);
-		lblCantidad.setForeground(Color.BLUE);
-		lblCantidad.setFont(new Font("Verdana", Font.BOLD, 11));
-		lblCantidad.setBounds(314, 292, 137, 27);
-		milamina.add(lblCantidad);
-
 		cantidad_prestar = new JTextField();
 		cantidad_prestar.setColumns(10);
 		cantidad_prestar.setBounds(315, 317, 127, 23);
@@ -173,7 +233,7 @@ public class Servidor_CBDC extends JFrame {
 		fecha_entrega = new JTextField();
 		fecha_entrega.setColumns(10);
 		fecha_entrega.setBounds(450, 317, 117, 23);
-		milamina.add(fecha_entrega);
+		milamina.add(fecha_entrega);	
 
 		// BOTONES
 		Emitir = new JButton("Emitir");
@@ -183,6 +243,7 @@ public class Servidor_CBDC extends JFrame {
 				try {
 					double numero = Double.parseDouble(cantidad.getText().toString());
 					BCE.crearDineroTotal(numero);
+					actualizarLabels();
 				} catch (NumberFormatException e1) {
 					cantidad.setText("ERROR");
 					cantidad.setForeground(Color.red);
@@ -394,7 +455,7 @@ public class Servidor_CBDC extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				double numero = Double.parseDouble(cantidad.getText().toString());
 				BCE.eliminarDineroTotal(numero);
-				System.out.println(modelo.obtenerSaldo());
+				actualizarLabels();
 				Thread hiloEmitir = new Thread(new Runnable() {
 					public void run() {
 						try {
@@ -521,5 +582,6 @@ public class Servidor_CBDC extends JFrame {
 		grupoRadio = new ButtonGroup();
 		grupoRadio.add(radioOperativa);
 		grupoRadio.add(radioNoOperativa);
+		
 	}
 }

@@ -365,7 +365,7 @@ public class Cliente_CBDC extends JFrame {
 				}
 				char sexo = ConvertirCadenaALetra(sexito);
 				String saldoInicialString = JOptionPane.showInputDialog("Introduce el saldo inicial de la cuenta");
-				double saldo_inicial = Integer.parseInt(saldoInicialString);
+				double saldo_inicial = Double.parseDouble(saldoInicialString);
 				if (saldoInicialString == null) {
 					System.exit(0);
 				}
@@ -444,8 +444,7 @@ public class Cliente_CBDC extends JFrame {
 		IBAN.setFont(new Font("Verdana Pro Cond", Font.BOLD, 18));
 		IBAN.setBounds(460, 11, 264, 31);
 		milamina.add(IBAN);
-		String iban = modelo.obtenerNumeroIBAN();
-		IBAN.setText(iban);
+		IBAN.setText(modelo.obtenerNumeroIBAN());
 
 		DNI_label = new JLabel("DNI:");
 		DNI_label.setHorizontalAlignment(SwingConstants.LEFT);
